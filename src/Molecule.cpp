@@ -5,9 +5,8 @@ Molecule::Molecule(){
 	std::vector<Connection> connections;
 	updateFE();
 }
-Molecule::Molecule(std::vector<Atom> a, std::vector<Connection> c){
-	atoms=a;
-	connections=c;
+Molecule::Molecule(std::vector<Atom> a, std::vector<Connection> c)
+		: atoms(a), connections(c){
 	updateFE();
 }
 
@@ -52,6 +51,11 @@ void Molecule::printMolecule(){
 	for(short y=0;y<connections.size();y++){
 		connections.at(y).printConnection();
 	}
+}
+
+void Molecule::draw(glm::mat4 viewmat, glm::mat4 projectmat, GLuint shader, glm::vec3 camPos){
+//	int bonding=connections.size();
+//	int lonepairs=
 }
 
 Molecule Molecule::subMol(Atom a){

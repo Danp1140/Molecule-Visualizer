@@ -1,10 +1,17 @@
+#ifndef ATOM_H
+#define ATOM_H
+
+
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sstream>
+#include <fstream>
+#include "Drawable.h"
 
 class Connection;
 
-class Atom{
+class Atom:public Drawable{
 private:
 	short anum, electrons, velectrons, os;
 	std::string name, abb;
@@ -15,6 +22,8 @@ public:
 	Atom();
 	/*constructs element with given atomic number, name, and electron configuration*/
 	Atom(short an, std::string n, std::string a, short e, short ve, short o);
+
+	Atom(short an, short o);
 
 	bool equals(Atom a);
 
@@ -32,3 +41,5 @@ public:
 	short getOS(){return os;}
 	std::vector<Connection*> getConnections(){return c;}
 };
+
+#endif

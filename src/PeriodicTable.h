@@ -1,6 +1,6 @@
-#include <string>
-#include <fstream>
-#include <iostream>
+#ifndef PERIODICTABLE_H_
+#define PERIODICTABLE_H_
+
 #include "Atom.h"
 
 class PeriodicTable{
@@ -16,3 +16,5 @@ public:
 	void printTable();
 
 };
+
+#endif
