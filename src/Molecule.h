@@ -1,34 +1,39 @@
 #ifndef MOLECULE_H_
 #define MOLECULE_H_
 
+#include <vector>
+#include <utility>
+
 #include "Connection.h"
 #include "Atom.h"
 
-class Molecule:public Drawable{
+class Molecule{
 private:
-	int freeelectrons;
-	std::vector<Atom> atoms;
-	std::vector<Connection> connections;
+	std::vector<Atom*> atoms;
+	std::vector<Connection*> connections;
 public:
 	Molecule();
-	Molecule(std::vector<Atom> a, std::vector<Connection> c);
+	Molecule(std::vector<Atom*> a, std::vector<Connection*> c);
 
-	void addAtom(Atom a);
+	void addAtom(Atom *a);
 	void removeAtom(Atom *a);
-	void addConnection(Connection c);
+	void addConnection(Connection *c);
 	void removeConnection(Connection *c);
-
-	void updateFE();
 
 	void printMolecule();
 
-	virtual void draw(glm::mat4 viewmat, glm::mat4 projectmat, GLuint shader, glm::vec3 camPos) override;
+	Molecule subMol(Atom *a);
 
-	Molecule subMol(Atom a);
+	void recomputePositions();
 
-	int getFE(){return freeelectrons;}
-	Atom getAtom(short index){return atoms.at(index);}
-	Connection getConnection(short index){return connections.at(index);}
+	int findLongestBranch(Atom *a, int length);
+
+	Atom* getAtom(short index){return atoms.at(index);}
+	std::vector<Atom*>& getAtoms(){return atoms;}
+	Connection* getConnection(short index){return connections.at(index);}
+	std::vector<Connection*>& getConnections(){return connections;}
+
+	virtual ~Molecule();
 };
 
 #endif

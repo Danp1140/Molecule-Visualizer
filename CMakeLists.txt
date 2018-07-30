@@ -17,9 +17,11 @@ add_executable(${PROJECT_NAME}
         src/Driver.cpp
         src/Molecule.cpp
         src/Molecule.h
-        src/PeriodicTable.cpp
-        src/PeriodicTable.h
+        src/Drawable.h
         src/Drawable.cpp
-        src/Drawable.h src/Viewport.h src/Camera.h src/Camera.cpp src/Viewport.cpp)
+        src/Viewport.h
+        src/Viewport.cpp
+        src/Camera.h
+        src/Camera.cpp)
 
 target_link_libraries(${PROJECT_NAME} GLEW glfw3 -m64)

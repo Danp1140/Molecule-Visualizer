@@ -1,6 +1,5 @@
-#include "Molecule.h"
-#include "PeriodicTable.h"
 #include "Viewport.h"
+
 
 int main(){
 	//Init
@@ -38,51 +37,85 @@ int main(){
 	width/=2;
 	height/=2;
 
+	Molecule m=Molecule();
 
-	Camera c=Camera(window, glm::vec3(10, 10, 10), glm::vec3(0, 0, 0), ROTATE_CONTROLS);
+		//Hydrogen
+//	m.addAtom(new Atom(1, 0));
+//	m.addAtom(new Atom(1, 0));
+//	m.addConnection(new Connection(1, m.getAtom(0), m.getAtom(1)));
+//	m.recomputePositions();
+		//Water
+//	m.addAtom(new Atom(1, 0));
+//	m.addAtom(new Atom(8, 0));
+//	m.addAtom(new Atom(1, 0));
+//	m.addConnection(new Connection(1, m.getAtom(0), m.getAtom(1)));
+//	m.addConnection(new Connection(1, m.getAtom(2), m.getAtom(1)));
+//	m.recomputePositions();
+		//Methyl
+//	m.addAtom(new Atom(6, 0));
+//	m.addAtom(new Atom(1, 0));
+//	m.addAtom(new Atom(1, 0));
+//	m.addAtom(new Atom(1, 0));
+//	m.addAtom(new Atom(1, 0));
+//	m.addConnection(new Connection(1, m.getAtom(0), m.getAtom(1)));
+//	m.addConnection(new Connection(1, m.getAtom(0), m.getAtom(2)));
+//	m.addConnection(new Connection(1, m.getAtom(0), m.getAtom(3)));
+//	m.addConnection(new Connection(1, m.getAtom(0), m.getAtom(4)));
+//	m.recomputePositions();
+		//Lysine
+	for(int x=0;x<14;x++){
+		m.addAtom(new Atom(1, 0));
+	}
+	m.addAtom(new Atom(7, 0));
+	m.addAtom(new Atom(7, 0));
+	m.addAtom(new Atom(8, 0));
+	m.addAtom(new Atom(8, 0));
+	for(int x=0;x<6;x++){
+		m.addAtom(new Atom(6, 0));
+	}
+	m.addConnection(new Connection(1, m.getAtom(0), m.getAtom(14)));
+	m.addConnection(new Connection(1, m.getAtom(1), m.getAtom(14)));
+	m.addConnection(new Connection(1, m.getAtom(18), m.getAtom(14)));
+	m.addConnection(new Connection(1, m.getAtom(2), m.getAtom(18)));
+	m.addConnection(new Connection(1, m.getAtom(13), m.getAtom(18)));
+	m.addConnection(new Connection(1, m.getAtom(19), m.getAtom(18)));
+	m.addConnection(new Connection(1, m.getAtom(3), m.getAtom(19)));
+	m.addConnection(new Connection(1, m.getAtom(12), m.getAtom(19)));
+	m.addConnection(new Connection(1, m.getAtom(20), m.getAtom(19)));
+	m.addConnection(new Connection(1, m.getAtom(4), m.getAtom(20)));
+	m.addConnection(new Connection(1, m.getAtom(11), m.getAtom(20)));
+	m.addConnection(new Connection(1, m.getAtom(21), m.getAtom(20)));
+	m.addConnection(new Connection(1, m.getAtom(5), m.getAtom(21)));
+	m.addConnection(new Connection(1, m.getAtom(10), m.getAtom(21)));
+	m.addConnection(new Connection(1, m.getAtom(22), m.getAtom(21)));
+	m.addConnection(new Connection(1, m.getAtom(6), m.getAtom(22)));
+	m.addConnection(new Connection(1, m.getAtom(15), m.getAtom(22)));
+	m.addConnection(new Connection(1, m.getAtom(23), m.getAtom(22)));
+	m.addConnection(new Connection(1, m.getAtom(8), m.getAtom(15)));
+	m.addConnection(new Connection(1, m.getAtom(9), m.getAtom(15)));
+	m.addConnection(new Connection(2, m.getAtom(16), m.getAtom(23)));
+	m.addConnection(new Connection(1, m.getAtom(7), m.getAtom(17)));
+	m.addConnection(new Connection(1, m.getAtom(17), m.getAtom(23)));
+	m.recomputePositions();
+
+
+	Camera c=Camera(window, glm::vec3(10, 0.1, 0.1), glm::vec3(0, 0, 0), FLY_CONTROLS);
 	Viewport v=Viewport(c, window, width, height, Viewport::loadShaders("resources/shaders/VertexShader.glsl",
 	                                                                    "resources/shaders/FragmentShader.glsl"));
-//	Drawable test=Drawable("resources/models/atomsmooth.obj");
-//	Drawable test2=Drawable("resources/models/atomsmooth.obj");
-//	test2.setPos(glm::vec3(1,1,1));
-//	Drawable test=Drawable("resources/models/atomsmooth.obj");
-//	v.addDrawable(&test);
-//	v.addDrawable(&test2);
-
-	Atom a1=Atom(7, 0);
-	a1.setPos(glm::vec3(0,0,-2));
-	Atom a2=Atom(8, 0);
-	a2.setPos(glm::vec3(0,0,2));
-	Connection c1=Connection(2, &a1, &a2);
-
-
-	Molecule m=Molecule();
-	m.addAtom(a1);
-	m.addAtom(a2);
-	m.addConnection(c1);
-
-//	v.addDrawable(&a1);
-//	v.addDrawable(&a2);
-//	v.addDrawable(&c1);
-		v.addDrawable(&m);
 
 	glClearColor(0, 0, 0.1, 1);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	//Main loop
 	do{
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-
-
-		//Investigate depth buffer bit
-
-		v.draw();
+		v.draw(m);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}while(!glfwWindowShouldClose(window)&&glfwGetKey(window, GLFW_KEY_ESCAPE)!=GLFW_PRESS);
+
 
 	return 0;
 }

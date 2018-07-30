@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 
+
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -18,19 +19,21 @@ protected:
     GLuint vertexbuffer, normalbuffer;
 public:
     Drawable();
-//    Drawable(std::vector<glm::vec3> v, std::vector<glm::vec3> n, glm::vec3 pos, glm::vec3 rot, glm::vec3 scl, glm::vec3 clr);
-	Drawable(const char* modelfilepath);
+
+	explicit Drawable(const char* modelfilepath);
 
     virtual void draw(glm::mat4 viewmat, glm::mat4 projectmat, GLuint shader, glm::vec3 camPos);
 
+	static bool loadOBJ(const char* obj_filepath, std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals);
+
     void setPos(glm::vec3 pos);
-    void setRot(glm::vec3 angles);
+    void setRot(glm::quat angles);
     void setScl(glm::vec3 scl);
     void setVN(std::vector<glm::vec3> v, std::vector<glm::vec3> n);
     void setClr(glm::vec3 clr);
 
     glm::vec3 getPosition(){return positionvar;}
-    glm::vec3 getRotation(){return glm::eulerAngles(rotationvar);}
+    glm::quat getRotation(){return rotationvar;}
     glm::vec3 getScale(){return scalevar;}
 
     virtual ~Drawable();

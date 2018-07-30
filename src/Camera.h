@@ -22,7 +22,6 @@ public:
 	glm::mat4 getView();
 	glm::mat4 getPerspective();
 	glm::vec3 getPosition(){return position; }
-	glm::vec3 getFocus(){return focus;}
 };
 
 #endif

@@ -2,7 +2,6 @@
 #define CONNECTION_H_
 
 #include "Drawable.h"
-#include "Viewport.h"
 
 class Atom;
 
@@ -11,9 +10,10 @@ private:
 	short bonds;
 	Atom *a1, *a2;
 public:
-	Connection();
 	Connection(short b, Atom *atom1, Atom *atom2);
-//	Connection(short b, Atom *atom1, Atom *atom2, glm::vec3 pos, glm::vec3 rot, glm::vec3 scl);
+	Connection(Connection *c);
+
+	Atom* getNot(Atom* a);
 
 	short getBonds(){return bonds;}
 	Atom* getAtom1(){return a1;}

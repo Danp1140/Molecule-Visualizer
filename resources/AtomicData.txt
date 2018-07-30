@@ -1,0 +1,4 @@
+a Hydrogen H 1 1
+a Carbon C 6 4
+a Nitrogen N 7 5
+a Oxygen O 8 6

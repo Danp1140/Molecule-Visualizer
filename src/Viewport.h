@@ -10,22 +10,20 @@
 
 #include "Drawable.h"
 #include "Camera.h"
+#include "Molecule.h"
 
 class Viewport{
 private:
 	Camera camera;
 	GLFWwindow *window;
 	int width, height;
-	std::vector<Drawable*> objects;
-	GLuint programID, VertexArrayID;;
+	GLuint programID, VertexArrayID;
+	Drawable test;
 public:
 	Viewport(Camera c, GLFWwindow *w, int wdth, int hght, GLuint shaders);
 
-	void draw();
+	void draw(Molecule &molecule);
 
-	void addDrawable(Drawable* object);
-
-	static bool loadOBJ(const char* obj_filepath, std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals);
 	static GLuint loadShaders(const char* vertex_shader_filepath, const char* fragment_shader_filepath);
 };
 

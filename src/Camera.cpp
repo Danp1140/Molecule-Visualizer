@@ -41,7 +41,7 @@ void Camera::updatePos(){
 			vertangle+=mousesense*-dypos*dtime;
 //			std::cout << "horiz: " << horizangle << " vert: " << vertangle << '\n';
 			focus=glm::vec3(cos(vertangle)*sin(horizangle), sin(vertangle), cos(vertangle)*cos(horizangle));
-			glm::vec3 right=glm::vec3(sin(horizangle+3.14f/2.0f), 0, cos(horizangle+3.14f/2.0f));
+			right=glm::vec3(sin(horizangle+3.14f/2.0f), 0, cos(horizangle+3.14f/2.0f));
 			up=glm::vec3(glm::cross(right, focus));
 //			std::cout<<focus.x<<' '<<focus.y<<' '<<focus.z<<'\n';
 
@@ -84,8 +84,8 @@ glm::mat4 Camera::getPerspective(){
 }
 
 glm::mat4 Camera::getView(){
-	std::cout<<"Position x: "<<position.x<<" Position y: "<<position.y<<" Position z: "<<position.z/*r<<"\nFocus x: " <<focus.x<<" Focus y: "
-									 <<focus.y<<" Focus z: "<<focus.z*/<<'\n';
+//	std::cout<<"Position x: "<<position.x<<" Position y: "<<position.y<<" Position z: "<<position.z/*r<<"\nFocus x: " <<focus.x<<" Focus y: "
+//									 <<focus.y<<" Focus z: "<<focus.z*/<<'\n';
 	//x=-5.65, y=5.65
 //	std::cout<<"Up: ("<<up.x<<", "<<up.y<<", "<<up.z<<")\n";
 	if(controls==FLY_CONTROLS){return glm::mat4(glm::lookAt(position, focus+position, up));}

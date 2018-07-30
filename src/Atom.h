@@ -7,6 +7,8 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+#include <utility>
+
 #include "Drawable.h"
 
 class Connection;
@@ -16,23 +18,20 @@ private:
 	short anum, electrons, velectrons, os;
 	std::string name, abb;
 	std::vector<Connection*> c;
+	static int newid;
+	int id;
 public:
 
-	/*constructs default element (not a real element)*/
 	Atom();
-	/*constructs element with given atomic number, name, and electron configuration*/
-	Atom(short an, std::string n, std::string a, short e, short ve, short o);
-
 	Atom(short an, short o);
+	Atom(Atom *a);
 
-	bool equals(Atom a);
-
-	/*prints information of atom*/
 	void printAtom();
+
+	virtual void setPos(glm::vec3 pos);
 
 	void addConnection(Connection *con);
 
-	/*getters*/
 	short getANum(){return anum;}
 	std::string getName(){return name;}
 	std::string getAbbrev(){return abb;}
@@ -40,6 +39,7 @@ public:
 	short getVE(){return velectrons;}
 	short getOS(){return os;}
 	std::vector<Connection*> getConnections(){return c;}
+	int getID(){return id;}
 };
 
 #endif
