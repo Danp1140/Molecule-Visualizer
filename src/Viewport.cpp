@@ -2,9 +2,6 @@
 
 Viewport::Viewport(Camera c, GLFWwindow*w, int wdth, int hght, GLuint shaders)
 		:camera(c), window(w), width(wdth), height(hght), programID(shaders), test(Drawable("resources/models/test.obj")){
-//	test.setPos(glm::vec3(2/sqrt(3), 2/sqrt(3), 2/sqrt(3)));
-//	test.setRot(glm::vec3(0, 0.785398, 0.785398));
-	test.setPos(glm::vec3(4/sqrt(3), 4/sqrt(3), 4/sqrt(3)));
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
@@ -14,14 +11,11 @@ void Viewport::draw(Molecule &molecule){
 	camera.updatePos();
 	for(auto& atom:molecule.getAtoms()){
 		atom->draw(camera.getView(), camera.getPerspective(), programID, camera.getPosition());
-//		std::cout<<molecule.findLongestBranch(atom, 0)<<" | ";
 	}
-//	std::cout<<"________________________\n";
 	for(auto& connection:molecule.getConnections()){
 		connection->draw(camera.getView(), camera.getPerspective(), programID, camera.getPosition());
 	}
-//	test.draw(camera.getView(), camera.getPerspective(), programID, camera.getPosition());
-//	std::cout<<"Drawn\n";
+	test.draw(camera.getView(), camera.getPerspective(), programID, camera.getPosition());
 }
 
 GLuint Viewport::loadShaders(const char*vertex_shader_filepath, const char*fragment_shader_filepath){

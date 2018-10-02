@@ -9,6 +9,9 @@
 #include <fstream>
 #include <utility>
 
+#include <glm/gtx/polar_coordinates.hpp>
+#include <glm/gtx/vector_angle.hpp>
+
 #include "Drawable.h"
 
 class Connection;
@@ -18,9 +21,12 @@ private:
 	short anum, electrons, velectrons, os;
 	std::string name, abb;
 	std::vector<Connection*> c;
+	glm::vec2 polarrot;
 	static int newid;
 	int id;
+	//check level of innefficiency, change possibly required
 public:
+	bool repositioned;
 
 	Atom();
 	Atom(short an, short o);
@@ -29,8 +35,11 @@ public:
 	void printAtom();
 
 	virtual void setPos(glm::vec3 pos);
+	virtual void setRot(glm::vec2 rot);
 
 	void addConnection(Connection *con);
+
+	void recomputePosition();
 
 	short getANum(){return anum;}
 	std::string getName(){return name;}
@@ -40,6 +49,8 @@ public:
 	short getOS(){return os;}
 	std::vector<Connection*> getConnections(){return c;}
 	int getID(){return id;}
+	glm::vec3 getColor(){return color;}
+	virtual glm::vec2 getRotation(){return polarrot;}
 };
 
 #endif

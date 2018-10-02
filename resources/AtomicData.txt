@@ -1,4 +1,7 @@
 a Hydrogen H 1 1
 a Carbon C 6 4
+a Boron B 5 3
 a Nitrogen N 7 5
 a Oxygen O 8 6
+a Fluorine F 9 7
+a Sulfer S 16 6

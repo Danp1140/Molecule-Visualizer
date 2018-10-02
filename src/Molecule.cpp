@@ -42,6 +42,17 @@ void Molecule::removeConnection(Connection *c){
 	}
 }
 
+void Molecule::setPos(glm::vec3 p){
+	glm::vec3 p0=glm::vec3(0,0,0);
+	for(auto&a:atoms){
+		p0+=a->getPosition();
+	}
+	p0/=atoms.size();
+	for(auto&a:atoms){
+		a->setPos(a->getPosition()-p0+p);
+	}
+}
+
 void Molecule::printMolecule(){
 	std::cout<<"ATOMS:\n______________________________________________\n";
 	for(auto& atom:atoms){
@@ -64,84 +75,61 @@ Molecule Molecule::subMol(Atom *a){
 	return m;
 }
 
-void Molecule::recomputePositions(){
-	Atom* start;
-	for(int x=2;x<10;x++){
-		for(auto& a:atoms){
-			if(a->getConnections().size()<x){
-				start=a;
-				break;
+bool Molecule::branch(Atom*s){
+	//below if statement possibly more streamlineable?
+//	std::cout<<"branch call from "<<s->getID()<<"\n";
+	if(s->getName()=="unassigned"){
+		for(auto&x:atoms){
+			x->repositioned=false;
+		}
+		Atom*start=s;
+		for(int x=2;x<10;x++){
+			for(auto&a:atoms){
+				if(a->getName()!="unassigned"&&a->getConnections().size()<x){
+					start=a;
+//					std::cout<<"Branch start identified: "<<start->getID()<<'\n';
+					start->recomputePosition();
+					start->repositioned=true;
+//					start->setClr(glm::vec3(0.9, 0.1, 0.9));
+//					std::cout<<"Operation executed on atom "<<start->getID()<<'\n';
+					break;
+				}
 			}
+			if(start->getName()!="unassigned"){break;}
 		}
-		if(start->getName()!="unassigned"){break;}
+		for(auto&x:atoms){
+//		std::cout<<x->getPosition().x<<" "<<x->getPosition().y<<" "<<x->getPosition().z<<'\n';
+//			std::cout<<x->repositioned<<" ";
+		}
+		branch(start->getConnections().at(0)->getNot(start));
 	}
-	std::cout<<"                 "<<start->getName()<<"                 \n";
-	for(auto& root:atoms){
-		int bonding=root->getConnections().size(), lonepairs=root->getVE();
-		for(auto& c:root->getConnections()){
-			lonepairs-=c->getBonds();
+	else{
+		if(s->repositioned==false){
+			s->recomputePosition();
+//			std::cout<<"Operation executed on atom "<<s->getID()<<'\n';
+			s->repositioned=true;
 		}
-		lonepairs/=2;
-		std::cout<<root->getID()<<" ("<<root->getName()<<"):   Submolecule Bonding: "<<bonding<<"   Lone Pairs in Submolecule: "<<lonepairs<<'\n';
-		//MAKE ATOM MOVE MOVE CONNECTIONS TO PROPER POSITION AS WELL
-		//perhaps change order of how rotation and position are applied?
-		if(bonding==2&&lonepairs==2){
-			root->getConnections().at(0)->getNot(root)->setPos(root->getPosition()+glm::vec3(0, 0, 4));
-			root->getConnections().at(1)->getNot(root)->setPos(root->getPosition()+glm::vec3(sin(52.225)*4, 0, cos(52.225)*4));
-		}
-		if(bonding==4&&lonepairs==0){
-//			root->getConnections().at(0)->getNot(root)->setPos(root->getPosition()+glm::vec3(0, 4, 0));
-//			root->getConnections().at(1)->getNot(root)->setPos(root->getPosition()+glm::vec3(sin(54.75)*4, -0.3328594706*4, (sin(30)*(sin(54.75)/sin(60)))*4));
-////			std::cout<<sqrt(pow(cos(54.75), 2)-pow(sin(54.75)/sqrt(3.0), 2));
-////			std::cout<<
-//			root->getConnections().at(2)->getNot(root)->setPos(root->getPosition()+glm::vec3(sin(109.5)*4, /*gotta figure this one out*/0, cos(109.5)*4));
-//			root->getConnections().at(3)->getNot(root)->setPos(root->getPosition()+glm::vec3(sin(164.25)*4, /*gotta figure this one out*/0, cos(164.25)*4));
-//			root->getConnections().at(0)->getNot(root)->setPos(root->getPosition()+glm::vec3(2*(sqrt(6)/2), 0, -2/sqrt(2)*(sqrt(6)/2)));
-//			root->getConnections().at(1)->getNot(root)->setPos(root->getPosition()+glm::vec3(-2*(sqrt(6)/2), 0, -2/sqrt(2)*(sqrt(6)/2)));
-//			root->getConnections().at(2)->getNot(root)->setPos(root->getPosition()+glm::vec3(0, 2*(sqrt(6)/2), 2/sqrt(2)*(sqrt(6)/2)));
-//			root->getConnections().at(3)->getNot(root)->setPos(root->getPosition()+glm::vec3(0, -2*(sqrt(6)/2), 2/sqrt(2)*(sqrt(6)/2)));
-			root->getConnections().at(0)->getNot(root)->setPos(root->getPosition()+glm::vec3(4/sqrt(3), 4/sqrt(3), 4/sqrt(3)));
-			root->getConnections().at(1)->getNot(root)->setPos(root->getPosition()+glm::vec3(-4/sqrt(3), 4/sqrt(3), -4/sqrt(3)));
-			root->getConnections().at(2)->getNot(root)->setPos(root->getPosition()+glm::vec3(4/sqrt(3), -4/sqrt(3), -4/sqrt(3)));
-			root->getConnections().at(3)->getNot(root)->setPos(root->getPosition()+glm::vec3(-4/sqrt(3), -4/sqrt(3), 4/sqrt(3)));
-			if(root->getConnections().at(3)->getNot(root)->getID()==18){root->getConnections().at(3)->getNot(root)->setClr(glm::vec3(1, 0, 0.75));}
-		}
-	}
-}
 
-int Molecule::findLongestBranch(Atom* a, int length){
-	int longest=0, temp=0, x=0;
-	std::cout<<a->getName()<<" ("<<a->getConnections().size()<<") : \n";
-	if(length>0){x=1;}
-	for(auto& c:a->getConnections()){
-		if(c->getAtom1()->getID()==a->getID()){
-			if(c->getAtom2()->getConnections().size()>1+x){
-				std::cout<<"Branch ";
-				temp+=findLongestBranch(c->getAtom2(), length++)+1;
-				std::cout<<"Cascading result: "<<temp<<'\n';
-			}
-			else{
-				temp+=length+1;
-				std::cout<<"EOB result: "<<temp<<'\n';
+		if(s->getConnections().size()==1){
+			if(s->getConnections().at(0)->getNot(s)->repositioned==false){
+				s->getConnections().at(0)->getNot(s)->recomputePosition();
+				s->getConnections().at(0)->getNot(s)->repositioned=true;
+//				std::cout<<"Operation executed on atom "<<s->getConnections().at(0)->getNot(s)->getID()<<'\n';
 			}
 		}
 		else{
-			if(c->getAtom1()->getConnections().size()>1+x){
-				std::cout<<"Branch ";
-				temp+=findLongestBranch(c->getAtom1(), length++)+1;
-				std::cout<<"Cascading result: "<<temp<<'\n';
-			}
-			else{
-				temp+=length+1;
-				std::cout<<"EOB result: "<<temp<<'\n';
+			for(auto&c:s->getConnections()){
+				if(c->getNot(s)->repositioned==false){
+					branch(c->getNot(s));
+				}
 			}
 		}
-		if(temp>longest){
-			longest=temp;
+		for(auto&x:atoms){
+//		std::cout<<x->getPosition().x<<" "<<x->getPosition().y<<" "<<x->getPosition().z<<'\n';
+//			std::cout<<x->repositioned<<" ";
 		}
-		temp=0;
 	}
-	return longest;
+//	delete s;
 }
 
 Molecule::~Molecule(){

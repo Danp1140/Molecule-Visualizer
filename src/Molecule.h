@@ -20,13 +20,13 @@ public:
 	void addConnection(Connection *c);
 	void removeConnection(Connection *c);
 
+	void setPos(glm::vec3 p);
+
 	void printMolecule();
 
 	Molecule subMol(Atom *a);
 
-	void recomputePositions();
-
-	int findLongestBranch(Atom *a, int length);
+	bool branch(Atom*s);
 
 	Atom* getAtom(short index){return atoms.at(index);}
 	std::vector<Atom*>& getAtoms(){return atoms;}
