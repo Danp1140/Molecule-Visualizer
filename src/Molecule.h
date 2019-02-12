@@ -14,6 +14,7 @@ private:
 public:
 	Molecule();
 	Molecule(std::vector<Atom*> a, std::vector<Connection*> c);
+	Molecule(const char* pdbfilepath);
 
 	void addAtom(Atom *a);
 	void removeAtom(Atom *a);
@@ -27,6 +28,7 @@ public:
 	Molecule subMol(Atom *a);
 
 	bool branch(Atom*s);
+	bool torsionals(float rot);
 
 	Atom* getAtom(short index){return atoms.at(index);}
 	std::vector<Atom*>& getAtoms(){return atoms;}

@@ -11,6 +11,7 @@
 
 #include <glm/gtx/polar_coordinates.hpp>
 #include <glm/gtx/vector_angle.hpp>
+#include <glm/gtx/perpendicular.hpp>
 
 #include "Drawable.h"
 
@@ -19,7 +20,7 @@ class Connection;
 class Atom:public Drawable{
 private:
 	short anum, electrons, velectrons, os;
-	std::string name, abb;
+	std::string name, abb, pdbname, residue;
 	std::vector<Connection*> c;
 	glm::vec2 polarrot;
 	static int newid;
@@ -29,7 +30,9 @@ public:
 	bool repositioned;
 
 	Atom();
-	Atom(short an, short o);
+	Atom(short an, short o, std::vector<glm::vec3> v, std::vector<glm::vec3> norm);
+	Atom(std::string sym, glm::vec3 pos, std::vector<glm::vec3> v, std::vector<glm::vec3> norm);
+	Atom(std::string sym, glm::vec3 pos, std::string n, std::string res, std::vector<glm::vec3> v, std::vector<glm::vec3> norm);
 	Atom(Atom *a);
 
 	void printAtom();
@@ -41,9 +44,13 @@ public:
 
 	void recomputePosition();
 
+	void refreshPosition();
+
 	short getANum(){return anum;}
 	std::string getName(){return name;}
 	std::string getAbbrev(){return abb;}
+	std::string getPDBName(){return pdbname;}
+	std::string getResidue(){return residue;}
 	short getElectrons(){return electrons;}
 	short getVE(){return velectrons;}
 	short getOS(){return os;}

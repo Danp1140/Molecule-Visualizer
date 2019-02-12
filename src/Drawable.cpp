@@ -9,11 +9,9 @@ Drawable::Drawable()
 //	std::cout<<"created\n";
 }
 
-Drawable::Drawable(const char* modelfilepath)
+Drawable::Drawable(std::vector<glm::vec3> verts, std::vector<glm::vec3> norms)
 		:positionvar(glm::vec3(0,0,0)), rotationvar(glm::vec3(0,0,0)), scalevar(glm::vec3(1,1,1)), color(glm::vec3(0.95,0.95,0.95)){
-	std::vector<glm::vec3> verttemp, normtemp;
-	loadOBJ(modelfilepath, verttemp, normtemp);
-	setVN(verttemp, normtemp);
+	setVN(verts, norms);
 //	std::cout<<"created\n";
 }
 
@@ -24,23 +22,17 @@ void Drawable::draw(glm::mat4 viewmat, glm::mat4 projectmat, GLuint shader, glm:
 
 	glm::mat4 m=glm::translate(positionvar)*glm::toMat4(rotationvar)*glm::scale(scalevar);
 	glm::mat4 vp=projectmat*viewmat;
-//	std::cout<<"Scale x: "<<scalevar.x<<" Scale y: "<<scalevar.y<<" Scale z: "<<scalevar.z<<'\n';
-//	std::cout<<"Rotation x: "<<glm::eulerAngles(rotationvar).x<<" Rotation y: "<<glm::eulerAngles(rotationvar).y<<" Rotation z: "<<glm::eulerAngles(rotationvar).z<<'\n';
-//    std::cout<<"Position x: "<<positionvar.x<<" Position y: "<<positionvar.y<<" Position z: "<<positionvar.z<<'\n';
 
 	GLint mID=glGetUniformLocation(shader, "M");
 	GLint vpID=glGetUniformLocation(shader, "VP");
 	glUniformMatrix4fv(mID, 1, GL_FALSE, &m[0][0]);
 	glUniformMatrix4fv(vpID, 1, GL_FALSE, &vp[0][0]);
-	//Sends for VertexShader.glsl and FragmentShader.glsl
 	GLint tintID=glGetUniformLocation(shader, "tint");
 	GLint viewPosID=glGetUniformLocation(shader, "viewPos");
 	GLint shininessID=glGetUniformLocation(shader, "shininess");
 	glUniform3fv(tintID, 1, &color[0]);
 	glUniform3fv(viewPosID, 1, &camPos[0]);
 	glUniform1f(shininessID, 0.9f);
-//	std::cout<<"Tint:   R: "<<color.r<<"   G: "<<color.g<<"   B: "<<color.b<<'\n';
-//	std::cout<<"View Position:   X: "<<camPos.x<<"   Y: "<<camPos.y<<"   Z: "<<camPos.z<<'\n';
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -51,9 +43,9 @@ void Drawable::draw(glm::mat4 viewmat, glm::mat4 projectmat, GLuint shader, glm:
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(verticies.size()));
+
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
-//	std::cout<<normalbuffer<<'\n';
 }
 
 //note: loadOBJ doesn't work with texture maps

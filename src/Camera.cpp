@@ -4,18 +4,20 @@
 
 Camera::Camera(GLFWwindow*w, glm::vec3 p, glm::vec3 f, int c)
 		:window(w), position(p), focus(f), controls(c), horizvelocity(0),
-		 nearclip(0.1f), farclip(100.0f), up(glm::vec3(0, 1, 0)), mousesense(0.2), dtime(0), ltime(0){
+		 nearclip(0.1f), farclip(1000.0f), up(glm::vec3(0, 1, 0)), mousesense(0.2), dtime(0), ltime(0){
 	if(controls==FLY_CONTROLS){
-		if(position.x==0){position.x==0.01;}
-		if(position.y==0){position.y==0.01;}
-		if(position.z==0){position.z==0.01;}
+//		if(position.x==0){position.x=0.01;}
+//		if(position.y==0){position.y=0.01;}
+//		if(position.z==0){position.z=0.01;}
 		horizangle=atan((position.x-focus.x)/(position.z-focus.z));
 		vertangle=atan((position.y-focus.y)/(position.z-focus.z))-3.14;
 		focus=glm::vec3(cos(vertangle)*sin(horizangle), sin(vertangle), cos(vertangle)*cos(horizangle));
 		movespeed=0.5;
 	}else{
-		horizangle=0;
-		vertangle=0;
+		float r=sqrt(pow(position.x-focus.x, 2)+pow(position.z-focus.z, 2)+pow(position.y-focus.y, 2));
+		horizangle=atan2(position.z, position.x);
+//		vertangle=atan2(position.y, position.z);
+		vertangle=acos(position.y/r);
 		movespeed=0.5;
 	}
 	glfwGetFramebufferSize(window, &width, &height);
@@ -53,25 +55,39 @@ void Camera::updatePos(){
 			if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)==GLFW_PRESS){position+=glm::vec3(0, -1, 0)*movespeed;}
 		}else{glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);}
 	}else if(controls==ROTATE_CONTROLS){
-		float rxz=sqrt(pow(position.x-focus.x, 2)+pow(position.z-focus.z, 2));
+		float r=sqrt(pow(position.x-focus.x, 2)+pow(position.z-focus.z, 2)+pow(position.y-focus.y, 2));
+		horizangle+=horizvelocity;
+		vertangle+=vertvelocity;
+
+		position=glm::vec3(r*cos(horizangle)*sin(vertangle),
+		                   r*cos(vertangle),
+		                   r*sin(vertangle)*sin(horizangle));
 		if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)==GLFW_PRESS){
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 			horizvelocity+=dxpos*dtime*mousesense;
-			if(glfwGetKey(window, GLFW_KEY_SPACE)==GLFW_PRESS){position.y+=movespeed;}
-			if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)==GLFW_PRESS){position.y+=-movespeed;}
+			vertvelocity+=dypos*dtime*mousesense*0.75;
+//			if(vertangle<0.05||vertangle>3.09){vertvelocity+=0.01;}
+			if(glfwGetKey(window, GLFW_KEY_W)==GLFW_PRESS){position-=glm::vec3(0.05, 0.05, 0.05)*glm::vec3(r*cos(horizangle)*sin(vertangle), r*cos(vertangle), r*sin(horizangle)*sin(vertangle));}
+			if(glfwGetKey(window, GLFW_KEY_S)==GLFW_PRESS){position+=glm::vec3(0.05, 0.05, 0.05)*glm::vec3(r*cos(horizangle)*sin(vertangle), r*cos(vertangle), r*sin(horizangle)*sin(vertangle));}
 		}
 		else{
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			if(horizvelocity>0){horizvelocity*=0.95;}
 			else if(horizvelocity<0){horizvelocity*=0.95;}
+			if(vertvelocity>0){vertvelocity*=0.95;}
+			else if(vertvelocity<0){vertvelocity*=0.95;}
+//			if(vertangle<0.05||vertangle>3.09){vertvelocity*=0.05;}
 		}
 
-		horizangle+=horizvelocity;
 
 
-		position=glm::vec3(rxz*cos(horizangle),
-		                   position.y,
-		                   rxz*-sin(horizangle));
+//		std::cout<<vertangle<<'\n';
+
+//		if(vertangle<0){up=glm::vec3(0, -1, 0);}
+//		if(vertangle>0){up=glm::vec3(0, 1, 0);}
+//		if(vertangle>3.14){up=glm::vec3(0, 1, 0);}
+//		std::cout<<position.x<<"   "<<position.y<<"   "<<position.z<<'\n';
+
 
 
 
@@ -81,6 +97,7 @@ void Camera::updatePos(){
 glm::mat4 Camera::getPerspective(){
 //	std::cout<<"Width: "<<width<<" Height: "<<height<<'\n';
 	return glm::mat4(glm::perspective(glm::radians(45.0f), (float)width/(float)height, nearclip, farclip));
+//	return glm::mat4(glm::ortho(0.0f, (float)width, 0.0f, (float)height, nearclip, farclip));
 }
 
 glm::mat4 Camera::getView(){

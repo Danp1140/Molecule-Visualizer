@@ -22,6 +22,6 @@ add_executable(${PROJECT_NAME}
         src/Viewport.h
         src/Viewport.cpp
         src/Camera.h
-        src/Camera.cpp)
+        src/Camera.cpp src/Text.h src/Text.cpp)
 
 target_link_libraries(${PROJECT_NAME} GLEW glfw3 -m64)

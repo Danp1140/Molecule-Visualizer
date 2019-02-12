@@ -20,7 +20,7 @@ protected:
 public:
     Drawable();
 
-	explicit Drawable(const char* modelfilepath);
+	explicit Drawable(std::vector<glm::vec3> verts, std::vector<glm::vec3> norms);
 
     virtual void draw(glm::mat4 viewmat, glm::mat4 projectmat, GLuint shader, glm::vec3 camPos);
 
@@ -35,6 +35,8 @@ public:
     glm::vec3 getPosition(){return positionvar;}
     glm::quat getRotation(){return rotationvar;}
     glm::vec3 getScale(){return scalevar;}
+    std::vector<glm::vec3> getVerts(){return verticies;}
+    std::vector<glm::vec3> getNorms(){return normals;}
 
     virtual ~Drawable();
 };
