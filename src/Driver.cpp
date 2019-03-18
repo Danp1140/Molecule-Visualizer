@@ -45,7 +45,7 @@ int main(){
 	glfwPollEvents();
 
 	std::vector<glm::vec3> atomverts, atomnorms, c1verts, c1norms, c2verts, c2norms, c3verts, c3norms;
-	Drawable::loadOBJ("resources/models/atom.obj", atomverts, atomnorms);
+	Drawable::loadOBJ("resources/models/atomsmooth.obj", atomverts, atomnorms);
 	Drawable::loadOBJ("resources/models/singlebond.obj", c1verts, c1norms);
 	Drawable::loadOBJ("resources/models/doublebond.obj", c2verts, c2norms);
 	Drawable::loadOBJ("resources/models/triplebond.obj", c3verts, c3norms);
@@ -60,9 +60,16 @@ int main(){
 //	file<<"}";
 //	file.close();
 
-	Text tt=Text("Hello World", "resources/testtext.png", 0, 540, 60);
+//	std::cout<<"Type filepath for imported PDB"<<std::endl;
+//	std::string strtemp;
+//	std::cin>>strtemp;
+//	Molecule m=Molecule(const_cast<char*>(strtemp));
+	Molecule m=Molecule("resources/pdbs/insulin.pdb");
+	m.setPos(glm::vec3(0, 0, 0));
 
-	Molecule m=Molecule();
+//	Molecule m=Molecule();
+//	m.addAtom(new Atom(1, 0, atomverts, atomnorms));
+//	m.branch(new Atom());
 //	auto start=std::chrono::high_resolution_clock::now();
 //	Molecule m=Molecule("resources/pdbs/insulin.pdb");
 //	auto end=std::chrono::high_resolution_clock::now();
@@ -244,24 +251,24 @@ int main(){
 //	m.addConnection(new Connection(1, m.getAtom(0), m.getAtom(4)));
 //	m.branch(new Atom());
 		//Glycine
-	for(int x=0;x<5;x++){
-		m.addAtom(new Atom(1, 0, atomverts, atomnorms));
-	}
-	m.addAtom(new Atom(7, 0, atomverts, atomnorms));
-	m.addAtom(new Atom(6, 0, atomverts, atomnorms));
-	m.addAtom(new Atom(6, 0, atomverts, atomnorms));
-	m.addAtom(new Atom(8, 0, atomverts, atomnorms));
-	m.addAtom(new Atom(8, 0, atomverts, atomnorms));
-	m.addConnection(new Connection(1, m.getAtom(5), m.getAtom(0)));
-	m.addConnection(new Connection(1, m.getAtom(5), m.getAtom(1)));
-	m.addConnection(new Connection(1, m.getAtom(6), m.getAtom(5)));
-	m.addConnection(new Connection(1, m.getAtom(6), m.getAtom(2)));
-	m.addConnection(new Connection(1, m.getAtom(6), m.getAtom(4)));
-	m.addConnection(new Connection(1, m.getAtom(7), m.getAtom(6)));
-	m.addConnection(new Connection(2, m.getAtom(7), m.getAtom(8)));
-	m.addConnection(new Connection(1, m.getAtom(9), m.getAtom(7)));
-	m.addConnection(new Connection(1, m.getAtom(9), m.getAtom(3)));
-	m.branch(new Atom());
+//	for(int x=0;x<5;x++){
+//		m.addAtom(new Atom(1, 0, atomverts, atomnorms));
+//	}
+//	m.addAtom(new Atom(7, 0, atomverts, atomnorms));
+//	m.addAtom(new Atom(6, 0, atomverts, atomnorms));
+//	m.addAtom(new Atom(6, 0, atomverts, atomnorms));
+//	m.addAtom(new Atom(8, 0, atomverts, atomnorms));
+//	m.addAtom(new Atom(8, 0, atomverts, atomnorms));
+//	m.addConnection(new Connection(1, m.getAtom(5), m.getAtom(0)));
+//	m.addConnection(new Connection(1, m.getAtom(5), m.getAtom(1)));
+//	m.addConnection(new Connection(1, m.getAtom(6), m.getAtom(5)));
+//	m.addConnection(new Connection(1, m.getAtom(6), m.getAtom(2)));
+//	m.addConnection(new Connection(1, m.getAtom(6), m.getAtom(4)));
+//	m.addConnection(new Connection(1, m.getAtom(7), m.getAtom(6)));
+//	m.addConnection(new Connection(2, m.getAtom(7), m.getAtom(8)));
+//	m.addConnection(new Connection(1, m.getAtom(9), m.getAtom(7)));
+//	m.addConnection(new Connection(1, m.getAtom(9), m.getAtom(3)));
+//	m.branch(new Atom());
 //	m.torsionals(0.0);
 //	m.setPos(glm::vec3(0,0,0));
 		//Lysine
@@ -351,29 +358,55 @@ int main(){
 		t=glfwGetTime();
 		f++;
 
-//		if(glfwGetKey(window, GLFW_KEY_O)==GLFW_PRESS){
-//			m.addAtom(new Atom(8, 0));
-//			m.addConnection(new Connection(1, m.getAtom(m.getAtoms().size()-1), m.getAtom(m.getAtoms().size()-2)));
-//			m.branch(new Atom());
-//		}
-//		if(glfwGetKey(window, GLFW_KEY_C)==GLFW_PRESS){
-//			m.addAtom(new Atom(6, 0));
-//			m.addConnection(new Connection(1, m.getAtom(m.getAtoms().size()-1), m.getAtom(m.getAtoms().size()-2)));
-//			m.branch(new Atom());
-//		}
+		if(glfwGetKey(window, GLFW_KEY_O)==GLFW_PRESS){
+			Atom*atemp=new Atom(8, 0, atomverts, atomnorms);
+			if(Connection::numTest(m.getAtom(selectid), atemp, 1)){
+				m.addAtom(atemp);
+				m.addConnection(new Connection(1, m.getAtom(selectid), m.getAtom(m.getAtoms().size()-1)));
+			}
+			m.branch(new Atom());
+		}
+		if(glfwGetKey(window, GLFW_KEY_C)==GLFW_PRESS){
+			Atom*atemp=new Atom(6, 0, atomverts, atomnorms);
+			if(Connection::numTest(m.getAtom(selectid), atemp, 1)){
+				m.addAtom(atemp);
+				m.addConnection(new Connection(1, m.getAtom(selectid), m.getAtom(m.getAtoms().size()-1)));
+			}
+			m.branch(new Atom());
+		}
+		if(glfwGetKey(window, GLFW_KEY_H)==GLFW_PRESS){
+			Atom*atemp=new Atom(1, 0, atomverts, atomnorms);
+			if(Connection::numTest(m.getAtom(selectid), atemp, 1)){
+				m.addAtom(atemp);
+				m.addConnection(new Connection(1, m.getAtom(selectid), m.getAtom(m.getAtoms().size()-1)));
+			}
+			m.branch(new Atom());
+		}
+		if(glfwGetKey(window, GLFW_KEY_N)==GLFW_PRESS){
+			Atom*atemp=new Atom(7, 0, atomverts, atomnorms);
+			if(Connection::numTest(m.getAtom(selectid), atemp, 1)){
+				m.addAtom(atemp);
+				m.addConnection(new Connection(1, m.getAtom(selectid), m.getAtom(m.getAtoms().size()-1)));
+			}
+			m.branch(new Atom());
+		}
+//		std::cout<<"here"<<std::endl;
 		if(glfwGetKey(window, GLFW_KEY_RIGHT)==GLFW_PRESS){
 			selectid++;
 			if(selectid>m.getAtoms().size()-1){selectid=0;}
+//			std::cout<<selectid<<std::endl;
 			m.getAtom(selectid)->setClr(m.getAtom(selectid)->getColor()+glm::vec3(0.2, 0.2, 0.2));
-			m.getAtom(selectid-1)->setClr(m.getAtom(selectid-1)->getColor()-glm::vec3(0.2, 0.2, 0.2));
-			std::cout<<selectid<<std::endl;
+			if(selectid==0){m.getAtom(m.getAtoms().size()-1)->setClr(m.getAtom(m.getAtoms().size()-1)->getColor()-glm::vec3(0.2, 0.2, 0.2));}
+			else{m.getAtom(selectid-1)->setClr(m.getAtom(selectid-1)->getColor()-glm::vec3(0.2, 0.2, 0.2));}
 		}
+//		std::cout<<"there"<<std::endl;
 		if(glfwGetKey(window, GLFW_KEY_LEFT)==GLFW_PRESS){
 			selectid--;
 			if(selectid<0){selectid=m.getAtoms().size()-1;}
+//			std::cout<<selectid<<std::endl;
 			m.getAtom(selectid)->setClr(m.getAtom(selectid)->getColor()+glm::vec3(0.2, 0.2, 0.2));
-			m.getAtom(selectid+1)->setClr(m.getAtom(selectid+1)->getColor()-glm::vec3(0.2, 0.2, 0.2));
-			std::cout<<selectid<<std::endl;
+			if(selectid==m.getAtoms().size()-1){m.getAtom(0)->setClr(m.getAtom(0)->getColor()-glm::vec3(0.2, 0.2, 0.2));}
+			else{m.getAtom(selectid+1)->setClr(m.getAtom(selectid+1)->getColor()-glm::vec3(0.2, 0.2, 0.2));}
 		}
 
 //		m.getAtom(1)->Atom::setRot(m.getAtom(1)->Atom::getRotation()+glm::vec2(glm::radians(1.0), glm::radians(1.0)));

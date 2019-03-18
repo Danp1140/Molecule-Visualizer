@@ -12,7 +12,6 @@
 #include "Drawable.h"
 #include "Camera.h"
 #include "Molecule.h"
-#include "Text.h";
 
 class Viewport{
 private:

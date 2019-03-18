@@ -3810,6 +3810,21 @@ Atom* Connection::getNot(Atom *a){
 	}
 	return a1;
 }
+bool Connection::numTest(Atom*one, Atom*two, int b){
+	short n=one->getVE(), m=two->getVE();
+	for(int x=0;x<one->getConnections().size();x++){
+		n-=one->getConnections().at(x)->getBonds();
+	}
+	for(int y=0;y<two->getConnections().size();y++){
+		m-=two->getConnections().at(y)->getBonds();
+	}
+	if(b<1||b>3||b>n||b>m){
+		std::cout<<n<<" "<<m<<std::endl;
+		std::cout<<"Too many or too little bonds: "<<b<<'\n';
+		return false;
+	}
+	return true;
+}
 
 void Connection::printConnection(){
 	if(bonds==1){std::cout<<a1->getAbbrev()<<" - "<<a2->getAbbrev()<<'\n';}

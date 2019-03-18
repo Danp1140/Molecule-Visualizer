@@ -14,6 +14,7 @@ public:
 	Connection(Connection *c);
 
 	Atom* getNot(Atom* a);
+	static bool numTest(Atom*one, Atom*two, int b);
 
 	short getBonds(){return bonds;}
 	Atom* getAtom1(){return a1;}
