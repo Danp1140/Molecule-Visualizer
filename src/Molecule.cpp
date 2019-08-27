@@ -17,8 +17,9 @@ Molecule::Molecule(const char* pdbfilepath){
 	Drawable::loadOBJ("resources/models/atomsmooth.obj", verts, norms);
 	char temp[128];
 	FILE*file=fopen(pdbfilepath, "r");
+//	FILE*file=fopen("resources/pdbs/insulin.pdb", "r");
 	while(true){
-		if(fgets(temp, sizeof(temp), file)==NULL){break;}
+		if(fgets(temp, sizeof(temp), file)==nullptr){break;}
 		std::string str=(temp);
 		std::string rectype=str.substr(0, 6);
 		std::string sernum=str.substr(6, 5);
@@ -734,6 +735,7 @@ Molecule::Molecule(const char* pdbfilepath){
 		std::cout<<percent*100<<"% complete"<<std::endl;
 	}
 	float z=abs(sqrt(pow(this->getAtom(1)->getPosition().x-this->getAtom(0)->getPosition().x, 2)+pow(this->getAtom(1)->getPosition().y-this->getAtom(0)->getPosition().y, 2)+pow(this->getAtom(1)->getPosition().z-this->getAtom(0)->getPosition().z, 2)));
+	fclose(file);
 }
 
 void Molecule::addAtom(Atom* a){
@@ -817,6 +819,7 @@ bool Molecule::branch(Atom*s){
 //					std::cout<<"Branch start identified: "<<start->getID()<<'\n';
 					start->recomputePosition();
 					start->repositioned=true;
+//					start->setClr(glm::vec3(1, 0.2, 0.2));
 //					start->setClr(glm::vec3(0.9, 0.1, 0.9));
 //					std::cout<<"Operation executed on atom "<<start->getID()<<'\n';
 					break;
@@ -857,65 +860,164 @@ bool Molecule::branch(Atom*s){
 //			std::cout<<x->repositioned<<" ";
 		}
 	}
-	//bond between atom 5 and atom 6, rotating atom 5
 
 
 
 }
 
-bool Molecule::torsionals(float rot){
-	float distscore=0;
-	for(int x=0;x<atoms.size();x++){
-		for(int y=0;y<atoms.size();y++){
-			if(x!=y){
-//				distscore+=abs(
-//						sqrt(pow(atoms.at(x)->getPosition().x, 2)+pow(atoms.at(x)->getPosition().y, 2))+pow(atoms.at(x)->getPosition().z, 2)-
-//						sqrt(pow(atoms.at(y)->getPosition().x, 2)+pow(atoms.at(y)->getPosition().y, 2))+pow(atoms.at(y)->getPosition().z, 2)
-						distscore+=abs(
-						sqrt(pow(atoms.at(x)->getPosition().x-atoms.at(y)->getPosition().x, 2)
-						+pow(atoms.at(x)->getPosition().y-atoms.at(y)->getPosition().y, 2)
-						+pow(atoms.at(x)->getPosition().z-atoms.at(y)->getPosition().z, 2)));
-//				std::cout<<atoms.at(x)->getName()<<"-"<<atoms.at(y)->getName()<<" "<<distscore<<std::endl;
+bool Molecule::torsionals(Atom*a1, Atom*a2){
+	glm::vec3 sub=a1->getPosition();
+	for(auto&a:atoms){a->setPos(glm::vec3(a->getPosition().x-sub.x, a->getPosition().y-sub.y, a->getPosition().z-sub.z));}
+
+	float r, phi, theta;
+	r=sqrt(pow(a2->getPosition().x, 2)+pow(a2->getPosition().y, 2)+pow(a2->getPosition().z, 2));
+	theta=atan2(a2->getPosition().x, a2->getPosition().z);
+//	phi=acos(a2->getPosition().y/r);
+
+//	phi=atan2(a2->getPosition().x, a2->getPosition().y);
+
+	for(auto&a:atoms){
+		if(a!=a1){
+			float rtemp=sqrt(pow(a->getPosition().x, 2)+(pow(a->getPosition().y, 2)+pow(a->getPosition().z, 2)));
+			float thetatemp=atan2(a->getPosition().x, a->getPosition().z);
+			float phitemp=acos(a->getPosition().y/rtemp);
+			thetatemp+=1.57-theta;
+			a->setPos(glm::vec3(
+					rtemp*sin(thetatemp)*sin(phitemp),
+					rtemp*cos(phitemp),
+					rtemp*cos(thetatemp)*sin(phitemp)
+			));
+		}
+	}
+	phi=atan2(a2->getPosition().x, a2->getPosition().y);
+	for(auto&a:atoms){
+		if(a!=a1){
+			float rtemp=sqrt(pow(a->getPosition().x, 2)+(pow(a->getPosition().y, 2)+pow(a->getPosition().z, 2)));
+			float phitemp2=atan2(a->getPosition().x, a->getPosition().y);
+			float thetatemp2=asin(a->getPosition().z/rtemp);
+			phitemp2-=phi-1.57;
+			a->setPos(glm::vec3(
+					rtemp*cos(thetatemp2)*sin(phitemp2),
+					rtemp*cos(thetatemp2)*cos(phitemp2),
+					rtemp*sin(thetatemp2)
+					));
+		}
+	}
+
+	std::vector<Atom*> subatom;
+
+	subatom=torsionalBranching(a1, a2);
+
+//	for(auto&a:subatom){std::cout<<a->getID();}
+
+	//start
+//	float distscore=0.0, distscoremin, minangle=0.0;
+//	for(auto&a:atoms){
+//		for(auto&at:atoms){
+//			if(a!=at){
+//				distscoremin+=sqrt(pow(a->getPosition().x-at->getPosition().x, 2)+pow(a->getPosition().y-at->getPosition().y, 2)+pow(a->getPosition().z-at->getPosition().z, 2));
+//			}
+//		}
+//	}
+//	std::vector<float> originalThetas;
+//	for(auto&a:subatom){originalThetas.push_back(atan2(a->getPosition().y, a->getPosition().z));}
+//	float addition=0.00;
+//	for(int x=0;x<628;x++){
+//		addition+=0.01;
+//		for(auto&a:subatom){
+//			if(a!=a1){
+//				r=sqrt(pow(a->getPosition().y, 2)+pow(a->getPosition().z, 2));
+//				theta=atan2(a->getPosition().y, a->getPosition().z)+addition;
+//				std::cout<<theta<<std::endl;
+////				theta+=temp;
+////				theta+=0.01;
+//				a->setPos(glm::vec3(
+//						a->getPosition().x,
+//						r*sin(theta),
+//						r*cos(theta)
+//				));
+//			}
+//		}
+//		for(auto&a:atoms){
+//			for(auto&at:atoms){
+//				if(a!=at){
+//					distscore+=sqrt(pow(a->getPosition().x-at->getPosition().x, 2)+pow(a->getPosition().y-at->getPosition().y, 2)+pow(a->getPosition().z-at->getPosition().z, 2));
+//				}
+//			}
+//		}
+//		if(distscore<distscoremin){
+//			distscoremin=distscore;
+//			minangle=theta;
+//		}
+//	}
+	//end
+	float distance=0.0, maxDistance=0.0, maxAngle=0.0;
+	std::vector<float> originalThetas;
+	for(auto&a:subatom){
+		originalThetas.push_back(atan2(a->getPosition().y, a->getPosition().z));
+	}
+	for(float x=0;x<6.28;x+=0.01){
+		distance=0.0;
+		for(auto&a:subatom){
+			if(a!=a1){
+				r=sqrt(pow(a->getPosition().y, 2)+pow(a->getPosition().z, 2));
+				theta=atan2(a->getPosition().y, a->getPosition().z)+x;
+				a->setPos(glm::vec3(
+						a->getPosition().x,
+						r*sin(theta),
+						r*cos(theta)
+				));
+			}
+		}
+		for(auto&a:atoms){
+			for(auto&at:atoms){
+				distance+=sqrt(pow(a->getPosition().x-at->getPosition().x, 2)+pow(a->getPosition().y-at->getPosition().y, 2)+pow(a->getPosition().z-at->getPosition().z, 2));
+			}
+		}
+		if(distance>maxDistance){
+			maxDistance=distance;
+			maxAngle=x;
+		}
+	}
+
+//	std::cout<<maxDistance<<", "<<maxAngle<<std::endl;
+
+	//below repositioning is creating issues
+	int counter=0;
+	for(auto&a:subatom){
+		r=sqrt(pow(a->getPosition().y, 2)+pow(a->getPosition().z, 2));
+		theta=originalThetas[counter]+maxAngle;
+//		theta=atan2(a->getPosition().y, a->getPosition().z)+maxAngle;
+//		std::cout<<r<<", "<<theta<<std::endl;
+		a->setPos(glm::vec3(
+				a->getPosition().x,
+				r*sin(theta),
+				r*cos(theta)
+		));
+		counter++;
+	}
+
+
+	return true;
+}
+
+std::vector<Atom*> Molecule::torsionalBranching(Atom*a1, Atom*a2){
+	std::vector<Atom*> result, subresult;
+	result.push_back(a2);
+	if(a2->getConnections().size()<2){return result;}
+	else{
+		for(auto&c:a2->getConnections()){
+			if(c->getNot(a2)!=a1){
+				subresult=torsionalBranching(a2, c->getNot(a2));
+				for(auto&a:subresult) result.push_back(a);
 			}
 		}
 	}
-//	std::cout<<distscore<<'\n';
+	return result;
+}
 
-	float theta1, phi1;
-	glm::vec3 a1=atoms.at(6)->getPosition(), a2=atoms.at(7)->getPosition();
-//	theta1=atan2(a2.x-a1.x, a2.z-a1.z)-4.71;
-////	phi1=acos(a2.y-a1.y/4);
-//	phi1=atan2(a2.y-a1.y,
-//			sqrt(pow(a2.x-a1.x, 2)+pow(a2.z-a1.z, 2)))+1.57;
-////	std::cout<<glm::degrees(theta1)<<"   "<<glm::degrees(phi1)<<std::endl;
-//	glm::vec3 rotAxis=glm::normalize(glm::vec3(
-//			4*cos(theta1)*sin(phi1),
-//			4*cos(phi1),
-//			4*sin(theta1)*sin(phi1)));
-	glm::vec3 rotAxis=glm::normalize(a2-a1);
-//	std::cout<<rotAxis.x<<"   "<<rotAxis.y<<"   "<<rotAxis.z<<std::endl;
-	for(int x=7;x<atoms.size();x++){
-		glm::vec3 a=atoms.at(x)->getPosition();
-
-		glm::vec3 rdir=glm::vec3((a.x+(rotAxis.z/rotAxis.x)*a.z)/(1+(pow(rotAxis.z, 2)/pow(rotAxis.x, 2))), 0, 0);
-		rdir.z=(rotAxis.z/rotAxis.x)*rdir.x;
-		rdir.y=(rotAxis.y/rotAxis.x)*rdir.x;
-		float rmag=sqrt(pow(a.x-rdir.x, 2)+pow(a.y-rdir.y, 2)+pow(a.z-rdir.z, 2));
-		float locrot=atan2(rdir.y-a.y, rdir.x-a.x)-3.14;
-//		this->getAtom(x)->setPos(rdir);
-//		std::cout<<locrot<<std::endl;
-
-//		std::cout<<"("<<rdir.x<<", "<<rdir.y<<", "<<rdir.z<<")"<<std::endl;
-		this->getAtom(x)->setPos(glm::vec3(rmag*cos(rot+locrot), rmag*sin(rot+locrot), rdir.z));
-
-
-
-		this->getAtom(x)->Drawable::setRot(
-				glm::quat(rotAxis.z*sin(-rot/2), rotAxis.y*sin(-rot/2), rotAxis.x*sin(-rot/2),
-				          cos(-rot/2)));
-	}
-
-	return true;
+void Molecule::recursiveTorsionals(Atom*s, bool starting){
+	//useless for now, delete later if unneccesary
 }
 
 Molecule::~Molecule(){

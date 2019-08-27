@@ -2,6 +2,7 @@
 
 Viewport::Viewport(Camera c, GLFWwindow*w, int wdth, int hght, GLuint shaders)
 		:camera(c), window(w), width(wdth), height(hght), programID(shaders), test(Drawable()){
+	textID=Viewport::loadShaders("resources/shaders/2DVertexShader.glsl", "resources/shaders/2DFragmentShader.glsl");
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
@@ -9,16 +10,6 @@ Viewport::Viewport(Camera c, GLFWwindow*w, int wdth, int hght, GLuint shaders)
 
 void Viewport::draw(Molecule &molecule){
 	camera.updatePos();
-//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//	if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT)==GLFW_PRESS){
-//		this->obbCheck(molecule.getAtom(0));
-//		for(auto& a:molecule.getAtoms()){
-////			if(this->obbCheck(a)){std::cout<<"yes\n";}
-//		}
-//		for(auto& c:molecule.getConnections()){
-////			if(this->obbCheck(c)){std::cout<<"sey\n";}
-//		}
-//	}
 	for(auto& atom:molecule.getAtoms()){
 		atom->draw(camera.getView(), camera.getPerspective(), programID, camera.getPosition());
 	}
@@ -121,4 +112,34 @@ GLuint Viewport::loadShaders(const char*vertex_shader_filepath, const char*fragm
 	glDeleteShader(VertexShaderID);
 	glDeleteShader(FragmentShaderID);
 	return ProgramID;
+}
+
+GLuint Viewport::loadBMP(const char* imagepath){
+	unsigned char header[54];
+	unsigned int dataPos, width, height, imageSize;
+	unsigned char*data;
+
+	FILE*file=fopen(imagepath, "rb");
+	if(!file){std::cout<<"Error in BMP file initialization"<<std::endl; return 0;}
+	if(fread(header, 1, 54, file)!=54){std::cout<<"Incorrect BMP format"<<std::endl; return 0;}
+
+	dataPos=*(int*)&(header[0x0a]);
+	imageSize=*(int*)&(header[0x22]);
+	width=*(int*)&(header[0x12]);
+	height=*(int*)&(header[0x16]);
+	if(imageSize==0){imageSize=width*height*3;}
+	if(dataPos==0){dataPos=54;}
+
+	data=new unsigned char[imageSize];
+	fread(data, 1, imageSize, file);
+	fclose(file);
+
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	return textureID;
 }

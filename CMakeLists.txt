@@ -13,6 +13,8 @@ if(APPLE)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo")
 endif()
 
+#set windows linker flags different?????
+
 include_directories(include)
 link_directories(libs)
 if(WIN32 OR MSVC OR MSYS OR MINGW)
@@ -32,10 +34,10 @@ add_executable(${PROJECT_NAME}
         src/Viewport.h
         src/Viewport.cpp
         src/Camera.h
-        src/Camera.cpp)
+        src/Camera.cpp src/Text.cpp src/Text.h src/Button.cpp src/Button.h)
 
 if(APPLE)
-    target_link_libraries(${PROJECT_NAME} GLEW glfw3 -m64)
+    target_link_libraries(${PROJECT_NAME} BulletDynamics LinearMath BulletCollision freetype bz2 z GLEW glfw3 -m64)
 endif()
 
 if(WIN32 OR MSVC OR MSYS OR MINGW)

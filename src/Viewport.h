@@ -12,13 +12,14 @@
 #include "Drawable.h"
 #include "Camera.h"
 #include "Molecule.h"
+#include "Button.h"
 
 class Viewport{
 private:
 	Camera camera;
 	GLFWwindow *window;
 	int width, height;
-	GLuint programID, VertexArrayID;
+	GLuint programID, textID, VertexArrayID;
 	Drawable test;
 public:
 	Viewport(Camera c, GLFWwindow *w, int wdth, int hght, GLuint shaders);
@@ -26,8 +27,10 @@ public:
 	void draw(Molecule &molecule);
 
 	bool obbCheck(Drawable *d);
+	Camera getCamera(){return camera;}
 
 	static GLuint loadShaders(const char* vertex_shader_filepath, const char* fragment_shader_filepath);
+	static GLuint loadBMP(const char* imagepath);
 };
 
 #endif

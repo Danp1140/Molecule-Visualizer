@@ -202,11 +202,10 @@ void Atom::recomputePosition(){
 		}
 	}
 	else if(bonding==3&&lonepairs==0){
-
-//		std::cout<<"yEeT\n";
 		int n=0;
+		int sources=0;
 		for(int x=0;x<3;x++){
-			if(c.at(x)->getNot(this)->getID()!=source->getID()){
+			if(c.at(x)->getNot(this)->getID()!=source->getID()&&c.at(x)->getNot(this)->repositioned==false){
 				float r=4*cos(glm::radians(-60.0+(120.0*n))), phic=this->getRotation().y, z=
 						4*sin(glm::radians(-60.0+(120.0*n))), thetac=-this->getRotation().x, theta,
 						radiusxz;
@@ -221,6 +220,7 @@ void Atom::recomputePosition(){
 //				c.at(x)->getNot(this)->setRot(glm::vec2(theta-thetac+3.14, phic));
 				c.at(x)->getNot(this)->setRot(glm::vec2(theta-thetac, atan2(c.at(x)->getNot(this)->getPosition().y-this->getPosition().y,
 				                                                                 sqrt(pow(c.at(x)->getNot(this)->getPosition().z-this->getPosition().z, 2)+pow(c.at(x)->getNot(this)->getPosition().x-this->getPosition().x, 2)))));
+//				std::cout<<abb<<id<<": \n\tPlacing: "<<c.at(x)->getNot(this)->getAbbrev()<<c.at(x)->getNot(this)->getID()<<"\n\tBonds: "<<bonding<<"\n\tLone Pairs: "<<lonepairs<<"\n\tr: "<<r<<"\n\tphic: "<<phic<<"\n\tz: "<<z<<"\n\tthetac: "<<thetac<<"\n\ttheta: "<<theta<<"\n\tradiusxz: "<<radiusxz<<std::endl;
 //				c.at(x)->getNot(this)->setRot(glm::vec2(
 //						atan2(c.at(x)->getNot(this)->getPosition().x-this->getPosition().x, c.at(x)->getNot(this)->getPosition().y-this->getPosition().y),
 //						atan2(c.at(x)->getNot(this)->getPosition().y-this->getPosition().y, c.at(x)->getNot(this)->getPosition().x-this->getPosition().x)
@@ -233,8 +233,17 @@ void Atom::recomputePosition(){
 //				std::cout<<glm::degrees(c.at(x)->getNot(this)->getRotation().x)<<"    "<<glm::degrees(c.at(x)->getNot(this)->getRotation().y)<<'\n';
 				n++;
 			}
-//			else{x-=1;}
+			else{sources++;}
 		}
+//		if(sources>1){
+//			std::cout<<"here";
+//			glm::vec3 tempPos;
+//			for(auto& b:c){
+//				tempPos+=b->getNot(this)->getPosition();
+//			}
+//			tempPos/=c.size();
+//			this->setPos(tempPos);
+//		}
 	}
 	else if(bonding==4&&lonepairs==0){
 
@@ -265,7 +274,7 @@ void Atom::recomputePosition(){
 	else if(bonding==3&&lonepairs==1){
 
 		for(int x=0;x<3;x++){
-			if(c.at(x)->getNot(this)->getID()!=source->getID()){
+			if(c.at(x)->getNot(this)->getID()!=source->getID()&&c.at(x)->getNot(this)->repositioned==false){
 //			if(c.at(x)->getNot(this)->repositioned==false){
 				float r=3.65*sin(x+5.85)+0.35, phic=(4.02*sin(x+2.71)+4.36+this->getRotation().y+4.71), z=
 						-3.26*x+6.52, thetac=-this->getRotation().x, theta,
@@ -282,6 +291,7 @@ void Atom::recomputePosition(){
 //				c.at(x)->getNot(this)->setRot(glm::vec2(theta-thetac+3.14, phic));
 				c.at(x)->getNot(this)->setRot(glm::vec2(theta-thetac, atan2(c.at(x)->getNot(this)->getPosition().y-this->getPosition().y,
 				                                                                 sqrt(pow(c.at(x)->getNot(this)->getPosition().z-this->getPosition().z, 2)+pow(c.at(x)->getNot(this)->getPosition().x-this->getPosition().x, 2)))));
+//				std::cout<<abb<<id<<": \n\tPlacing: "<<c.at(x)->getNot(this)->getAbbrev()<<c.at(x)->getNot(this)->getID()<<"\n\tBonds: "<<bonding<<"\n\tLone Pairs: "<<lonepairs<<"\n\tr: "<<r<<"\n\tphic: "<<phic<<"\n\tz: "<<z<<"\n\tthetac: "<<thetac<<"\n\ttheta: "<<theta<<"\n\tradiusxz: "<<radiusxz<<std::endl;
 			}
 		}
 	}
@@ -508,7 +518,7 @@ void Atom::recomputePosition(){
 			}
 		}
 	}
-	else{this->setPos(glm::vec3(4, 0, 0));}
+	else{this->setPos(glm::vec3(4, 4, 4));}
 	this->Drawable::setRot(glm::vec3(this->Atom::getRotation().y, this->Atom::getRotation().x, 0));
 	//compute one distance score for molecule
 //	std::cout<<"B: "<<bonding<<" LP: "<<lonepairs<<"\n";
