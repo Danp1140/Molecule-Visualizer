@@ -1,7 +1,6 @@
 #ifndef ATOM_H
 #define ATOM_H
 
-
 #include <iostream>
 #include <string>
 #include <vector>
@@ -25,14 +24,15 @@ private:
 	glm::vec2 polarrot;
 	static int newid;
 	int id;
-	//check level of innefficiency, change possibly required
+
+	void loadData();
 public:
 	bool repositioned;
 
 	Atom();
-	Atom(short an, short o, std::vector<glm::vec3> v, std::vector<glm::vec3> norm);
-	Atom(std::string sym, glm::vec3 pos, std::vector<glm::vec3> v, std::vector<glm::vec3> norm);
-	Atom(std::string sym, glm::vec3 pos, std::string n, std::string res, std::vector<glm::vec3> v, std::vector<glm::vec3> norm);
+	Atom(short an, short o, std::vector<glm::vec3>&v, std::vector<glm::vec3>&norm);
+	Atom(std::string sym, glm::vec3 pos, const std::vector<glm::vec3>&v, const std::vector<glm::vec3>&norm);
+	Atom(std::string sym, glm::vec3 pos, std::string n, std::string res, const std::vector<glm::vec3>&v, const std::vector<glm::vec3>&norm);
 	Atom(Atom *a);
 
 	void printAtom();

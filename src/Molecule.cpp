@@ -4,20 +4,16 @@ Molecule::Molecule(){
 	std::vector<Atom*> atoms;
 	std::vector<Connection*> connections;
 }
-Molecule::Molecule(std::vector<Atom*> a, std::vector<Connection*> c)
-		: atoms(std::move(a)), connections(std::move(c)){
-	//need brackets???
-}
+
 Molecule::Molecule(const char* pdbfilepath){
 	std::cout<<"Loading PDB"<<std::endl;
 	float percent=0.0;
 	std::vector<Atom*> atoms;
 	std::vector<Connection*> connections;
 	std::vector<glm::vec3> verts, norms;
-	Drawable::loadOBJ("resources/models/atomsmooth.obj", verts, norms);
+	Drawable::loadOBJ("../resources/models/atomsmooth.obj", verts, norms);
 	char temp[128];
 	FILE*file=fopen(pdbfilepath, "r");
-//	FILE*file=fopen("resources/pdbs/insulin.pdb", "r");
 	while(true){
 		if(fgets(temp, sizeof(temp), file)==nullptr){break;}
 		std::string str=(temp);
@@ -45,7 +41,6 @@ Molecule::Molecule(const char* pdbfilepath){
 			}
 			this->addAtom(new Atom(esym, glm::vec3(x*2.76, y*2.76, z*2.76), name, resname, verts, norms));
 		}
-
 	}
 	for(int x=0;x<this->getAtoms().size();x++){
 		for(int y=0;y<this->getAtoms().size();y++){
@@ -315,7 +310,6 @@ Molecule::Molecule(const char* pdbfilepath){
 							this->getConnection(this->getConnections().size()-1)->setScl(glm::vec3(1, 1, (z-2.00)/2.00));
 						}
 					}
-
 					else if(a1->getResidue()=="ALA"&&a2->getResidue()=="ALA"&&z<6.0){
 						if((a1->getPDBName()=="N   "&&a2->getPDBName()=="CA  ")||(a1->getPDBName()=="CA  "&&a2->getPDBName()=="N   ")){
 							this->addConnection(new Connection(1, a1, a2));
@@ -732,21 +726,17 @@ Molecule::Molecule(const char* pdbfilepath){
 			}
 		}
 		percent=(float)x/(float)this->getAtoms().size();
-		std::cout<<percent*100<<"% complete"<<std::endl;
+		std::cout<<'\r'<<percent*100<<"% complete";
 	}
+	std::cout<<std::endl;
 	float z=abs(sqrt(pow(this->getAtom(1)->getPosition().x-this->getAtom(0)->getPosition().x, 2)+pow(this->getAtom(1)->getPosition().y-this->getAtom(0)->getPosition().y, 2)+pow(this->getAtom(1)->getPosition().z-this->getAtom(0)->getPosition().z, 2)));
 	fclose(file);
 }
 
 void Molecule::addAtom(Atom* a){
-//	a->setPos(glm::vec3(a->getID()*4-2, 0, 0));
-	atoms.emplace_back(std::move(a));
-//	std::vector<glm::vec3> vtemp, ntemp;
-//	Drawable::loadOBJ("resources/models/atom.obj", vtemp, ntemp);
-//	//temp fix for deleted buffers: regen buffers...find alternate permenant fix?
-//	atoms.at(atoms.size()-1).setVN(vtemp, ntemp);
-//	recomputePositions();
+	atoms.emplace_back(a);
 }
+
 void Molecule::removeAtom(Atom *a){
 	for(short x=0;x<atoms.size();x++){
 		if(atoms.at(x)==a){
@@ -754,15 +744,11 @@ void Molecule::removeAtom(Atom *a){
 		}
 	}
 }
+
 void Molecule::addConnection(Connection* c){
-	connections.emplace_back(std::move(c));
-//	std::vector<glm::vec3> vtemp, ntemp;
-//	if(connections.at(connections.size()-1).getBonds()==1){Drawable::loadOBJ("resources/models/singlebond.obj", vtemp, ntemp);}
-//	else if(connections.at(connections.size()-1).getBonds()==2){Drawable::loadOBJ("resources/models/doublebond.obj", vtemp, ntemp);}
-//	else{Drawable::loadOBJ("resources/models/triplebond.obj", vtemp, ntemp);}
-//	connections.at(connections.size()-1).setVN(vtemp, ntemp);
-//	recomputePositions();
+	connections.emplace_back(c);
 }
+
 void Molecule::removeConnection(Connection *c){
 	for(short x=0;x<connections.size();x++){
 		if(connections.at(x)==c){
@@ -793,76 +779,50 @@ void Molecule::printMolecule(){
 	}
 }
 
-Molecule Molecule::subMol(Atom *a){
-	//perhaps unneccesary?
-	Molecule m;
-	m.addAtom(new Atom(a));
-	for(auto& x:a->getConnections()){
-		m.addConnection(new Connection(x));
-		m.addAtom(new Atom(x->getNot(a)));
-	}
-	return m;
-}
-
 bool Molecule::branch(Atom*s){
-	//below if statement possibly more streamlineable?
-//	std::cout<<"branch call from "<<s->getID()<<"\n";
+	// starting case, null-initialized Atom has name initialized to "unassigned"
 	if(s->getName()=="unassigned"){
 		for(auto&x:atoms){
 			x->repositioned=false;
 		}
+		// determines starting atom by finding any atom with minimal bonds
 		Atom*start=s;
 		for(int x=2;x<10;x++){
 			for(auto&a:atoms){
 				if(a->getName()!="unassigned"&&a->getConnections().size()<x){
 					start=a;
-//					std::cout<<"Branch start identified: "<<start->getID()<<'\n';
 					start->recomputePosition();
 					start->repositioned=true;
-//					start->setClr(glm::vec3(1, 0.2, 0.2));
-//					start->setClr(glm::vec3(0.9, 0.1, 0.9));
-//					std::cout<<"Operation executed on atom "<<start->getID()<<'\n';
 					break;
 				}
 			}
 			if(start->getName()!="unassigned"){break;}
 		}
-		for(auto&x:atoms){
-//		std::cout<<x->getPosition().x<<" "<<x->getPosition().y<<" "<<x->getPosition().z<<'\n';
-//			std::cout<<x->repositioned<<" ";
-		}
 		branch(start->getConnections().at(0)->getNot(start));
 	}
 	else{
-//		std::cout<<"Operation executd on atom "<<s->getID()<<'\n';
-		if(s->repositioned==false){
+		if(!s->repositioned){
 			s->recomputePosition();
-//			std::cout<<"Operation executd on atom "<<s->getID()<<'\n';
 			s->repositioned=true;
 		}
-
-		if(s->getConnections().size()==1){
-			if(s->getConnections().at(0)->getNot(s)->repositioned==false){
-				s->getConnections().at(0)->getNot(s)->recomputePosition();
-				s->getConnections().at(0)->getNot(s)->repositioned=true;
-//				std::cout<<"Operation executed on atom "<<s->getConnections().at(0)->getNot(s)->getID()<<'\n';
-			}
-		}
-		else{
+		// indicates the end of the branch
+		// never actually get inside second if layer tho
+		// kinda makes sense
+//		if(s->getConnections().size()==1){
+//			if(!s->getConnections().at(0)->getNot(s)->repositioned){
+//				s->getConnections().at(0)->getNot(s)->recomputePosition();
+//				s->getConnections().at(0)->getNot(s)->repositioned=true;
+//				s->getConnections()[0]->getNot(s)->setClr(glm::vec3(1., 0, 1.));
+//			}
+//		}
+//		else{
 			for(auto&c:s->getConnections()){
-				if(c->getNot(s)->repositioned==false){
+				if(!c->getNot(s)->repositioned){
 					branch(c->getNot(s));
 				}
 			}
-		}
-		for(auto&x:atoms){
-//		std::cout<<x->getPosition().x<<" "<<x->getPosition().y<<" "<<x->getPosition().z<<'\n';
-//			std::cout<<x->repositioned<<" ";
-		}
+//		}
 	}
-
-
-
 }
 
 bool Molecule::torsionals(Atom*a1, Atom*a2){
@@ -980,8 +940,6 @@ bool Molecule::torsionals(Atom*a1, Atom*a2){
 		}
 	}
 
-//	std::cout<<maxDistance<<", "<<maxAngle<<std::endl;
-
 	//below repositioning is creating issues
 	int counter=0;
 	for(auto&a:subatom){
@@ -1014,10 +972,6 @@ std::vector<Atom*> Molecule::torsionalBranching(Atom*a1, Atom*a2){
 		}
 	}
 	return result;
-}
-
-void Molecule::recursiveTorsionals(Atom*s, bool starting){
-	//useless for now, delete later if unneccesary
 }
 
 Molecule::~Molecule(){

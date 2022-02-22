@@ -4,7 +4,6 @@
 #include <vector>
 #include <iostream>
 
-
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -20,7 +19,7 @@ protected:
 public:
     Drawable();
 
-	explicit Drawable(std::vector<glm::vec3> verts, std::vector<glm::vec3> norms);
+	explicit Drawable(const std::vector<glm::vec3>&verts, const std::vector<glm::vec3>&norms);
 
     virtual void draw(glm::mat4 viewmat, glm::mat4 projectmat, GLuint shader, glm::vec3 camPos);
 
@@ -29,7 +28,7 @@ public:
     void setPos(glm::vec3 pos);
     void setRot(glm::quat angles);
     void setScl(glm::vec3 scl);
-    void setVN(std::vector<glm::vec3> v, std::vector<glm::vec3> n);
+    void setVN(const std::vector<glm::vec3>&v, const std::vector<glm::vec3>&n);
     void setClr(glm::vec3 clr);
 
     glm::vec3 getPosition(){return positionvar;}

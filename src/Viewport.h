@@ -12,7 +12,8 @@
 #include "Drawable.h"
 #include "Camera.h"
 #include "Molecule.h"
-#include "Button.h"
+//#include "Button.h"
+#include "Text.h"
 
 class Viewport{
 private:
@@ -26,7 +27,6 @@ public:
 
 	void draw(Molecule &molecule);
 
-	bool obbCheck(Drawable *d);
 	Camera getCamera(){return camera;}
 
 	static GLuint loadShaders(const char* vertex_shader_filepath, const char* fragment_shader_filepath);

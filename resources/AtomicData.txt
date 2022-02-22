@@ -13,7 +13,7 @@ a Magnesium Mg 12 2
 a Aluminum Al 13 3
 a Silicon Si 14 4
 a Phosphorus P 15 5
-a Sulfer S 16 6
+a Sulphur S 16 6
 a Chlorine Cl 17 7
 a Argon Ar 18 8
 a Potassium K 19 1

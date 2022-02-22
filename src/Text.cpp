@@ -6,7 +6,8 @@
 
 Text::Text():size(1), dispwidth(800), dispheight(600), position(glm::vec2(0, 0)), textColor(glm::vec4(1, 1, 1, 1)){
 	FT_Library library=FT_Library();
-	FT_New_Face(library, "resources/fonts/arial.ttf", 0, &face);
+	FT_Init_FreeType(&library);
+	FT_New_Face(library, "../resources/fonts/arial.ttf", 0, &face);
 	FT_Set_Char_Size(face, size*64*0.6, size*64, 800, 600);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 }

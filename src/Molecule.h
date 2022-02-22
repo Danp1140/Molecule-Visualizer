@@ -13,7 +13,6 @@ private:
 	std::vector<Connection*> connections;
 public:
 	Molecule();
-	Molecule(std::vector<Atom*> a, std::vector<Connection*> c);
 	Molecule(const char* pdbfilepath);
 
 	void addAtom(Atom *a);
@@ -25,12 +24,9 @@ public:
 
 	void printMolecule();
 
-	Molecule subMol(Atom *a);
-
 	bool branch(Atom*s);
 	bool torsionals(Atom*a1, Atom*a2);
 	std::vector<Atom*> torsionalBranching(Atom*a1, Atom*a2);
-	void recursiveTorsionals(Atom*s, bool starting);
 
 	Atom* getAtom(short index){return atoms.at(index);}
 	std::vector<Atom*>& getAtoms(){return atoms;}

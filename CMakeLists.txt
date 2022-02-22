@@ -34,10 +34,10 @@ add_executable(${PROJECT_NAME}
         src/Viewport.h
         src/Viewport.cpp
         src/Camera.h
-        src/Camera.cpp src/Text.cpp src/Text.h src/Button.cpp src/Button.h)
+        src/Camera.cpp src/Text.cpp src/Text.h)
 
 if(APPLE)
-    target_link_libraries(${PROJECT_NAME} BulletDynamics LinearMath BulletCollision freetype bz2 z GLEW glfw3 -m64)
+    target_link_libraries(${PROJECT_NAME} freetype bz2 z GLEW glfw3 -m64)
 endif()
 
 if(WIN32 OR MSVC OR MSYS OR MINGW)

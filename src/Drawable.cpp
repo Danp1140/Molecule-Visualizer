@@ -4,20 +4,17 @@
 Drawable::Drawable()
 		:positionvar(glm::vec3(0,0,0)), rotationvar(glm::vec3(0,0,0)), scalevar(glm::vec3(1,1,1)), color(glm::vec3(0.95,0.95,0.95)){
 	std::vector<glm::vec3> verttemp, normtemp;
-	loadOBJ("resources/models/test.obj", verttemp, normtemp);
+	loadOBJ("../resources/models/test.obj", verttemp, normtemp);
 	setVN(verttemp, normtemp);
-//	std::cout<<"created\n";
 }
 
-Drawable::Drawable(std::vector<glm::vec3> verts, std::vector<glm::vec3> norms)
+Drawable::Drawable(const std::vector<glm::vec3>&verts, const std::vector<glm::vec3>&norms)
 		:positionvar(glm::vec3(0,0,0)), rotationvar(glm::vec3(0,0,0)), scalevar(glm::vec3(1,1,1)), color(glm::vec3(0.95,0.95,0.95)){
 	setVN(verts, norms);
-//	std::cout<<"created\n";
 }
 
 
 void Drawable::draw(glm::mat4 viewmat, glm::mat4 projectmat, GLuint shader, glm::vec3 camPos){
-
 	glUseProgram(shader);
 
 	glm::mat4 m=glm::translate(positionvar)*glm::toMat4(rotationvar)*glm::scale(scalevar);
@@ -48,7 +45,6 @@ void Drawable::draw(glm::mat4 viewmat, glm::mat4 projectmat, GLuint shader, glm:
 	glDisableVertexAttribArray(1);
 }
 
-//note: loadOBJ doesn't work with texture maps
 bool Drawable::loadOBJ(const char*obj_filepath, std::vector<glm::vec3>&vertices, std::vector<glm::vec3>&normals){
 	std::vector<unsigned int> vertIndicies, normIndicies;
 	std::vector<glm::vec3> verttemps, normtemps;
@@ -58,7 +54,7 @@ bool Drawable::loadOBJ(const char*obj_filepath, std::vector<glm::vec3>&vertices,
 		return false;
 	}
 	while(true){
-		char lineheader[1024];//128?
+		char lineheader[1024];
 		int res=fscanf(file, "%s", lineheader);
 		if(res==EOF){break;}
 		if(strcmp(lineheader, "v")==0){
@@ -86,31 +82,31 @@ bool Drawable::loadOBJ(const char*obj_filepath, std::vector<glm::vec3>&vertices,
 			normIndicies.push_back(normidx[2]);
 		}
 	}
-//	std::cout<<"Vertex Indicies: "<<vertIndicies.size()<<'\n';
 	for(unsigned int x=0;x<vertIndicies.size();x++){
 		vertices.push_back(verttemps[vertIndicies[x]-1]);
-//		std::cout<<"Vertex "<<x<<": "<<verttemps[vertIndicies[x]-1].x<<", "<<verttemps[vertIndicies[x]-1].y<<", "<<verttemps[vertIndicies[x]-1].z<<"\n";
 	}
-//	std::cout<<"Normal Indicies: "<<normIndicies.size()<<'\n';
 	for(unsigned int x=0;x<normIndicies.size();x++){
 		normals.push_back(normtemps[normIndicies[x]-1]);
-//		std::cout<<"Normal "<<x<<": "<<normtemps[normIndicies[x]-1].x<<", "<<normtemps[normIndicies[x]-1].y<<", "<<normtemps[normIndicies[x]-1].z<<"\n";
 	}
+	fclose(file);
 	return true;
 }
 
 void Drawable::setPos(glm::vec3 pos){
 	positionvar=pos;
 }
+
 void Drawable::setRot(glm::quat angles){
 	rotationvar=angles;
 }
+
 void Drawable::setScl(glm::vec3 scl){
 	scalevar=scl;
 }
-void Drawable::setVN(std::vector<glm::vec3> v, std::vector<glm::vec3> n){
-	verticies=std::move(v);
-	normals=std::move(n);
+
+void Drawable::setVN(const std::vector<glm::vec3>&v, const std::vector<glm::vec3>&n){
+	verticies=std::vector<glm::vec3>(v);
+	normals=std::vector<glm::vec3>(v);
 	GLuint vb;
 	glGenBuffers(1, &vb);
 	vertexbuffer=vb;
@@ -122,10 +118,10 @@ void Drawable::setVN(std::vector<glm::vec3> v, std::vector<glm::vec3> n){
 	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
 	glBufferData(GL_ARRAY_BUFFER, normals.size()*sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
 }
+
 void Drawable::setClr(glm::vec3 clr){color=clr;}
 
 Drawable::~Drawable(){
-//	std::cout<<"destroyed\n";
 	glDeleteBuffers(1, &vertexbuffer);
 	glDeleteBuffers(1, &normalbuffer);
 }

@@ -4,111 +4,160 @@
 
 int Atom::newid=0;
 
-Atom::Atom()
-		: anum(0), name("unassigned"), abb("n/a"), electrons(0), velectrons(0), os(0), repositioned(false), polarrot(glm::vec2(0, 0)), Drawable(){
+Atom::Atom():
+	anum(0),
+	name("unassigned"),
+	abb("n/a"),
+	electrons(0),
+	velectrons(0),
+	os(0),
+	repositioned(false),
+	polarrot(glm::vec2(0)),
+	Drawable(){
 	std::vector<Connection*> c;
 	id=-1;
 }
-Atom::Atom(short an, short o, std::vector<glm::vec3> v, std::vector<glm::vec3> norm)
-		: anum(an), os(o), repositioned(false), polarrot(glm::vec2(0,0)), Drawable(v, norm){
+
+Atom::Atom(short an,
+		   short o,
+		   std::vector<glm::vec3>&v,
+		   std::vector<glm::vec3>&norm):
+		   anum(an),
+		   os(o),
+		   repositioned(false),
+		   polarrot(glm::vec2(0,0)),
+		   Drawable(v, norm){
+	loadData();
+	id=newid;
+	newid++;
+}
+
+Atom::Atom(std::string sym,
+		   glm::vec3 pos,
+		   const std::vector<glm::vec3>&v,
+		   const std::vector<glm::vec3>&norm):
+		   abb(sym),
+		   repositioned(false),
+		   polarrot(glm::vec2(0,0)),
+		   Drawable(v, norm){
+	loadData();
+	setPos(pos);
+	id=newid;
+	newid++;
+}
+
+Atom::Atom(std::string sym,
+		   glm::vec3 pos,
+		   std::string n,
+		   std::string res,
+		   const std::vector<glm::vec3>&v,
+		   const std::vector<glm::vec3>&norm):
+		   Atom(sym, pos, v, norm){
+	pdbname=n;
+	residue=res;
+}
+
+Atom::Atom(Atom *a):
+		   anum(a->getANum()),
+		   electrons(a->getElectrons()),
+		   name(a->getName()), abb(a->getAbbrev()),
+		   velectrons(a->getVE()),
+		   os(a->getOS()),
+		   polarrot(glm::vec2(0,0)){
+	std::vector<glm::vec3> verts=a->Drawable::getVerts(),
+						   norms=a->Drawable::getNorms();
+	Drawable(verts, norms);
+	std::vector<Connection*> c;
+}
+
+void Atom::loadData(){
 	char n[50], a[2];
 	int e, ve;
-	FILE*file=fopen("resources/AtomicData.txt", "r");
+	FILE*file=fopen("../resources/AtomicData.txt", "r");
 	while(true){
 		char lineheader[1024];
 		int res=fscanf(file, "%s", lineheader);
 		if(res==EOF){break;}
 		fscanf(file, "%s %s %d %d", n, a, &e, &ve);
-		if(e==an){
+		if(a==abb||e==anum){
 			electrons=e;
 			name=std::string(n);
 			abb=std::string(a);
+			anum=e;
 			velectrons=ve;
 			break;
 		}
 	}
+	fclose(file);
 	std::vector<Connection*> c;
-	if(anum==1){setClr(glm::vec3(1,1,1));}
-	else if(anum==2||anum==10||anum==18||anum==54){setClr(glm::vec3(0.0, 1.0, 1.0));}
-	else if(anum==3||anum==11||anum==19){setClr(glm::vec3(0.5, 0.0, 1.0));}
-	else if(anum==4||anum==12||anum==20){setClr(glm::vec3(0.0, 0.5, 0.0));}
-	else if(anum==5){setClr(glm::vec3(1.0, 0.6, 0.5));}
-	else if(anum==6){setClr(glm::vec3(0.1, 0.1, 0.1));}
-	else if(anum==7){setClr(glm::vec3(0.1, 0.1, 0.9));}
-	else if(anum==8){setClr(glm::vec3(0.9, 0.1, 0.1));}
-	else if(anum==9||anum==17){setClr(glm::vec3(0.1, 0.9, 0.1));}
-	else if(anum==15){setClr(glm::vec3(1.0, 0.6, 0.0));}
-	else if(anum==16){setClr(glm::vec3(1.0, 0.9, 0.1));}
-	else if(anum==35){setClr(glm::vec3(0.6, 0.1, 0.0));}
-	else{setClr(glm::vec3(0.9, 0.5, 1.0));}
-
-	id=newid;
-	newid++;
-}
-
-Atom::Atom(std::string sym, glm::vec3 pos, std::vector<glm::vec3> v, std::vector<glm::vec3> norm)
-	: abb(sym), repositioned(false), polarrot(glm::vec2(0,0)), Drawable(v, norm){
-		char n[50], a[2];
-		int e, ve;
-		FILE*file=fopen("resources/AtomicData.txt", "r");
-		while(true){
-			char lineheader[1024];
-			int res=fscanf(file, "%s", lineheader);
-			if(res==EOF){break;}
-			fscanf(file, "%s %s %d %d", n, a, &e, &ve);
-			if(a==sym){
-				electrons=e;
-				name=std::string(n);
-				abb=std::string(a);
-				anum=e;
-				velectrons=ve;
-				break;
-			}
-		}
-		std::vector<Connection*> c;
-		if(anum==1){setClr(glm::vec3(1,1,1));}
-		else if(anum==2||anum==10||anum==18||anum==54){setClr(glm::vec3(0.0, 1.0, 1.0));}
-		else if(anum==3||anum==11||anum==19){setClr(glm::vec3(0.5, 0.0, 1.0));}
-		else if(anum==4||anum==12||anum==20){setClr(glm::vec3(0.0, 0.5, 0.0));}
-		else if(anum==5){setClr(glm::vec3(1.0, 0.6, 0.5));}
-		else if(anum==6){setClr(glm::vec3(0.1, 0.1, 0.1));}
-		else if(anum==7){setClr(glm::vec3(0.1, 0.1, 0.9));}
-		else if(anum==8){setClr(glm::vec3(0.9, 0.1, 0.1));}
-		else if(anum==9||anum==17){setClr(glm::vec3(0.1, 0.9, 0.1));}
-		else if(anum==15){setClr(glm::vec3(1.0, 0.6, 0.0));}
-		else if(anum==16){setClr(glm::vec3(1.0, 0.9, 0.1));}
-		else if(anum==35){setClr(glm::vec3(0.6, 0.1, 0.0));}
-		else{setClr(glm::vec3(0.9, 0.5, 1.0));}
-
-		setPos(pos);
-
-		id=newid;
-		newid++;
-}
-Atom::Atom(std::string sym, glm::vec3 pos, std::string n, std::string res, std::vector<glm::vec3> v, std::vector<glm::vec3> norm)
-		:  Atom(sym, pos, v, norm){
-	pdbname=n;
-	residue=res;
-}
-
-Atom::Atom(Atom *a)
-		: anum(a->getANum()), electrons(a->getElectrons()), name(a->getName()), abb(a->getAbbrev()), velectrons(a->getVE()), os(a->getOS()), polarrot(glm::vec2(0,0)), Drawable(a->Drawable::getVerts(), a->Drawable::getNorms()){
-	std::vector<Connection*> c;
+	switch (anum) {
+		case 1:
+			setClr(glm::vec3(1, 1, 1));
+			break;
+		case 2:
+		case 10:
+		case 18:
+		case 54:
+			setClr(glm::vec3(0, 1, 1));
+			break;
+		case 3:
+		case 11:
+		case 19:
+			setClr(glm::vec3(0.5, 0, 1));
+			break;
+		case 4:
+		case 12:
+		case 20:
+			setClr(glm::vec3(0, 0.5, 0));
+			break;
+		case 5:
+			setClr(glm::vec3(1, 0.6, 0.5));
+			break;
+		case 6:
+			setClr(glm::vec3(0.1, 0.1, 0.1));
+			break;
+		case 7:
+			setClr(glm::vec3(0.1, 0.1, 0.9));
+			break;
+		case 8:
+			setClr(glm::vec3(0.9, 0.1, 0.1));
+			break;
+		case 9:
+		case 17:
+			setClr(glm::vec3(0.1, 0.9, 0.1));
+			break;
+		case 15:
+			setClr(glm::vec3(1, 0.6, 0));
+			break;
+		case 16:
+			setClr(glm::vec3(1, 0.9, 0.1));
+			break;
+		case 35:
+			setClr(glm::vec3(0.6, 0.1, 0));
+			break;
+		default:
+			setClr(glm::vec3(0.9, 0.5, 1));
+	}
 }
 
 void Atom::printAtom(){
 	if(os!=0){
-		std::cout<<"\tAbbreviation: "<<abb<<"\n\tElectron Count: "<<electrons<<"\n\tValence Electron Count: "<<velectrons<<'\n';
+		std::cout<<"\tAbbreviation: "<<abb<<
+				   "\n\tElectron Count: "<<electrons<<
+				   "\n\tValence Electron Count: "<<velectrons<<'\n';
 	}
 	else{
-		std::cout<<anum<<"\nName: "<<name<<"\nAbbreviation: "<<abb<<"\nElectron Count: "<<electrons<<"\nValence Electron Count: "<<velectrons<<'\n';
+		std::cout<<anum<<
+				   "\nName: "<<name<<
+				   "\nAbbreviation: "<<abb<<
+				   "\nElectron Count: "<<electrons<<
+				   "\nValence Electron Count: "<<velectrons<<'\n';
 	}
 }
 
 void Atom::setPos(glm::vec3 pos){
 	Drawable::setPos(pos);
 	for(auto& con:c){
-//		std::cout<<con->getScale().z<<"  ";
 		float x1=con->getAtom1()->getPosition().x, x2=con->getAtom2()->getPosition().x,
 				y1=con->getAtom1()->getPosition().y, y2=con->getAtom2()->getPosition().y,
 				z1=con->getAtom1()->getPosition().z, z2=con->getAtom2()->getPosition().z;
@@ -125,8 +174,6 @@ void Atom::setPos(glm::vec3 pos){
 		con->setRot(glm::quat(rotaxis.x*sin(rot/2), rotaxis.y*sin(rot/2), rotaxis.z*sin(rot/2), cos(rot/2))*con->getRotation());
 
 		con->setPos(glm::vec3((x1+x2)/2, (y1+y2)/2, (z1+z2)/2));
-
-//		std::cout<<con->getScale().z<<'\n';
 	}
 }
 
@@ -143,17 +190,14 @@ void Atom::recomputePosition(){
 	Atom*source=new Atom();
 	for(auto& con:c){
 		lonepairs-=con->getBonds();
-		if(con->getNot(this)->repositioned==true){
+		if(con->getNot(this)->repositioned){
 			source=con->getNot(this);
 		}
 	}
 	lonepairs/=2;
-	//trying new system out on B2L2 and B2L1
-	//check why source cant be deleted
-	//should *probably* be refined
+	// trying new system out on B2L2 and B2L1
 	if(bonding==1){
-
-		if(c.at(0)->getNot(this)->repositioned==false){
+		if(!c.at(0)->getNot(this)->repositioned){
 			float theta=-this->Atom::getRotation().x-4.71, phi=this->Atom::getRotation().y+1.57;
 			c.at(0)->getNot(this)->setPos(this->getPosition()+glm::vec3(
 					4*cos(theta)*sin(phi),
@@ -163,7 +207,6 @@ void Atom::recomputePosition(){
 		}
 	}
 	else if(bonding==2&&lonepairs==0){
-
 		for(int x=0;x<2;x++){
 			if(c.at(x)->getNot(this)->getID()!=source->getID()){
 				float theta=-this->Atom::getRotation().x-4.71+(3.14*x), phi=-this->Atom::getRotation().y+1.57;
@@ -176,13 +219,15 @@ void Atom::recomputePosition(){
 		}
 	}
 	else if(bonding==2&&lonepairs==2){
-
 		int n=0;
 		for(int x=0;x<2;x++){
 			if(c.at(x)->getNot(this)->getID()!=source->getID()){
-				float r=4*cos(glm::radians(104.5*x+180)), phic=this->getRotation().y, z=
-						4*sin(glm::radians(104.5*x+180)), thetac=-this->getRotation().x, theta,
-						radiusxz;
+				float r=4*cos(glm::radians(104.5*x+180)),
+					  phic=this->getRotation().y,
+					  z=4*sin(glm::radians(104.5*x+180)),
+					  thetac=-this->getRotation().x,
+					  theta,
+					  radiusxz;
 				glm::vec3 xposc=glm::vec3(r, phic, z);
 				glm::vec3 xposv=glm::vec3(xposc.z, xposc.x*sin(xposc.y), xposc.x*cos(xposc.y));
 				radiusxz=sqrt(16-pow(xposv.y, 2.0));
@@ -247,8 +292,6 @@ void Atom::recomputePosition(){
 	}
 	else if(bonding==4&&lonepairs==0){
 
-//		std::cout<<"yuh";
-//		std::cout<<"xpos: "<<c.at(2)->getNot(this)->getPosition().x<<'\n';
 		for(int x=0;x<4;x++){
 //			float theta=this->Atom::getRotation().x-4.71, phi=-(this->Atom::getRotation().y)+1.57;
 			if(c.at(x)->getNot(this)->getID()!=source->getID()){
@@ -272,7 +315,6 @@ void Atom::recomputePosition(){
 		}
 	}
 	else if(bonding==3&&lonepairs==1){
-
 		for(int x=0;x<3;x++){
 			if(c.at(x)->getNot(this)->getID()!=source->getID()&&c.at(x)->getNot(this)->repositioned==false){
 //			if(c.at(x)->getNot(this)->repositioned==false){
@@ -520,9 +562,6 @@ void Atom::recomputePosition(){
 	}
 	else{this->setPos(glm::vec3(4, 4, 4));}
 	this->Drawable::setRot(glm::vec3(this->Atom::getRotation().y, this->Atom::getRotation().x, 0));
-	//compute one distance score for molecule
-//	std::cout<<"B: "<<bonding<<" LP: "<<lonepairs<<"\n";
-//	delete source;                     
 }
 
 void Atom::refreshPosition(){this->setPos(this->getPosition());}
